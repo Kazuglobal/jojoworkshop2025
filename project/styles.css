@@ -1513,16 +1513,6 @@ body {
     margin: 0 auto;
 }
 
-.timeline-line {
-    position: absolute;
-    left: 50%;
-    top: 0;
-    bottom: 0;
-    width: 4px;
-    background: linear-gradient(to bottom, var(--accent-luxury), rgba(212, 175, 55, 0.3));
-    transform: translateX(-50%);
-    border-radius: var(--radius-full-luxury);
-}
 
 .timeline-item-luxury {
     display: flex;
@@ -1715,10 +1705,6 @@ body {
         padding: 0 1rem;
     }
     
-    .timeline-line {
-        left: 30px;
-        transform: none;
-    }
     
     .timeline-item-luxury,
     .timeline-item-luxury:nth-child(even) {
@@ -1805,9 +1791,6 @@ body {
         padding: 0 0.5rem;
     }
     
-    .timeline-line {
-        left: 25px;
-    }
     
     .timeline-marker {
         width: 40px;
