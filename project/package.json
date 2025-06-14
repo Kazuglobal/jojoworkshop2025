@@ -7,7 +7,12 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "deploy": "./deploy.sh",
+    "deploy:build": "./deploy.sh --skip-supabase --skip-vercel",
+    "deploy:supabase": "./deploy.sh --skip-build --skip-vercel",
+    "deploy:vercel": "./deploy.sh --skip-build --skip-supabase",
+    "setup:db": "./deploy.sh --setup-db"
   },
   "dependencies": {
     "lucide-react": "^0.344.0",

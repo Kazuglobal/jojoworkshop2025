@@ -1,4 +1,214 @@
 // Luxury JavaScript for Voice Workshop Landing Page - Perfect Responsive
+
+// Supabase Configuration
+const SUPABASE_URL = 'https://dgclcoaxalatwvyjeeld.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRnY2xjb2F4YWxhdHd2eWplZWxkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk4NzczNDIsImV4cCI6MjA2NTQ1MzM0Mn0.wSl0mpD_34p3HFWow-tqA4HjbCRWT0ObKs-u_b4-ioI';
+
+// Initialize Supabase client
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// Performance monitoring
+const performanceMonitor = {
+    startTime: Date.now(),
+    metrics: {},
+    
+    // Track page load performance
+    trackPageLoad() {
+        window.addEventListener('load', () => {
+            const loadTime = Date.now() - this.startTime;
+            this.metrics.pageLoad = loadTime;
+            console.log(`📊 Page loaded in ${loadTime}ms`);
+            
+            // Track to analytics if available
+            if (typeof gtag !== 'undefined') {
+                gtag('event', 'page_load_time', {
+                    custom_parameter: loadTime
+                });
+            }
+        });
+    },
+    
+    // Track form interactions
+    trackFormInteraction(action, field = null) {
+        const timestamp = Date.now();
+        this.metrics[`form_${action}`] = timestamp;
+        
+        console.log(`📊 Form ${action}${field ? ` - ${field}` : ''}`);
+        
+        // Track to analytics if available
+        if (typeof gtag !== 'undefined') {
+            gtag('event', 'form_interaction', {
+                action: action,
+                field: field
+            });
+        }
+    },
+    
+    // Track errors
+    trackError(error, context = 'unknown') {
+        console.error(`📊 Error tracked:`, error);
+        
+        // Store in localStorage for debugging
+        const errorLog = JSON.parse(localStorage.getItem('errorLog') || '[]');
+        errorLog.push({
+            timestamp: new Date().toISOString(),
+            error: error.message || error,
+            context: context,
+            userAgent: navigator.userAgent,
+            url: window.location.href
+        });
+        
+        // Keep only last 50 errors
+        if (errorLog.length > 50) {
+            errorLog.splice(0, errorLog.length - 50);
+        }
+        
+        localStorage.setItem('errorLog', JSON.stringify(errorLog));
+        
+        // Track to analytics if available
+        if (typeof gtag !== 'undefined') {
+            gtag('event', 'exception', {
+                description: error.message || error,
+                fatal: false
+            });
+        }
+    },
+    
+    // Get performance summary
+    getSummary() {
+        return {
+            ...this.metrics,
+            totalTime: Date.now() - this.startTime,
+            userAgent: navigator.userAgent,
+            viewport: `${window.innerWidth}x${window.innerHeight}`,
+            connection: navigator.connection ? {
+                effectiveType: navigator.connection.effectiveType,
+                downlink: navigator.connection.downlink
+            } : null
+        };
+    }
+};
+
+// Initialize performance monitoring
+performanceMonitor.trackPageLoad();
+
+// Social sharing functionality
+function shareOnTwitter() {
+    const text = '🎼 世界的ボイストレーナー ジョジョ・アコスタ氏による特別ワークショップ！2025年6月21日開催 #VoiceAtelier #ボイストレーニング #子ども習い事';
+    const url = window.location.href;
+    const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`;
+    
+    window.open(twitterUrl, '_blank', 'width=600,height=400');
+    
+    // Track sharing
+    performanceMonitor.trackFormInteraction('social_share', 'twitter');
+}
+
+function shareOnLine() {
+    const text = '🎼 世界的ボイストレーナー ジョジョ・アコスタ氏による特別ワークショップ！2025年6月21日開催';
+    const url = window.location.href;
+    const lineUrl = `https://social-plugins.line.me/lineit/share?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`;
+    
+    window.open(lineUrl, '_blank', 'width=600,height=400');
+    
+    // Track sharing
+    performanceMonitor.trackFormInteraction('social_share', 'line');
+}
+
+function copyUrl() {
+    const url = window.location.href;
+    
+    if (navigator.clipboard && window.isSecureContext) {
+        // Modern approach using Clipboard API
+        navigator.clipboard.writeText(url).then(() => {
+            showCopySuccess();
+        }).catch(() => {
+            fallbackCopyTextToClipboard(url);
+        });
+    } else {
+        // Fallback for older browsers
+        fallbackCopyTextToClipboard(url);
+    }
+    
+    // Track copying
+    performanceMonitor.trackFormInteraction('social_share', 'copy_url');
+}
+
+function fallbackCopyTextToClipboard(text) {
+    const textArea = document.createElement('textarea');
+    textArea.value = text;
+    
+    // Avoid scrolling to bottom
+    textArea.style.top = '0';
+    textArea.style.left = '0';
+    textArea.style.position = 'fixed';
+    
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+    
+    try {
+        const successful = document.execCommand('copy');
+        if (successful) {
+            showCopySuccess();
+        } else {
+            showCopyError();
+        }
+    } catch (err) {
+        showCopyError();
+    }
+    
+    document.body.removeChild(textArea);
+}
+
+function showCopySuccess() {
+    const notification = document.createElement('div');
+    notification.innerHTML = '✅ URLをコピーしました！';
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: linear-gradient(135deg, #4ade80, #22c55e);
+        color: white;
+        padding: 1rem 1.5rem;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        z-index: 10000;
+        animation: luxury-fadeIn 0.3s ease;
+        box-shadow: 0 10px 30px rgba(74, 222, 128, 0.3);
+    `;
+    
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.remove();
+    }, 3000);
+}
+
+function showCopyError() {
+    const notification = document.createElement('div');
+    notification.innerHTML = '❌ コピーに失敗しました';
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: linear-gradient(135deg, #ff6b6b, #ee5a6f);
+        color: white;
+        padding: 1rem 1.5rem;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        z-index: 10000;
+        animation: luxury-fadeIn 0.3s ease;
+        box-shadow: 0 10px 30px rgba(255, 107, 107, 0.3);
+    `;
+    
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.remove();
+    }, 3000);
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize all luxury functionality
     initLuxuryScrollAnimations();
@@ -178,10 +388,12 @@ function initLuxuryFormHandling() {
         // Add focus effects for ALL devices
         input.addEventListener('focus', () => {
             addFocusGlow(input);
+            performanceMonitor.trackFormInteraction('field_focus', input.name);
         });
         
         input.addEventListener('blur', () => {
             removeFocusGlow(input);
+            performanceMonitor.trackFormInteraction('field_blur', input.name);
         });
     });
     
@@ -192,7 +404,7 @@ function initLuxuryFormHandling() {
     }
 }
 
-function handleLuxuryFormSubmit(e) {
+async function handleLuxuryFormSubmit(e) {
     e.preventDefault();
     
     const form = e.target;
@@ -231,28 +443,64 @@ function handleLuxuryFormSubmit(e) {
         `;
     }
     
-    // Enhanced progress simulation with luxury effects
-    let progress = 0;
-    const progressInterval = setInterval(() => {
-        progress += 12;
-        if (progress >= 100) {
-            clearInterval(progressInterval);
-            
-            // Show luxury success message with fireworks for ALL devices
-            showLuxurySuccessMessage();
-            
-            // Reset form with luxury animation
-            setTimeout(() => {
-                form.reset();
-                form.style.animation = 'luxury-fadeIn 0.8s ease-in-out';
-                
-                // Reset button with glow effect
-                submitButton.disabled = false;
-                submitButton.innerHTML = '<span>申込みを送信</span><div class="btn-arrow">→</div>';
-                addSuccessParticles(submitButton);
-            }, 1500);
+    try {
+        // Collect form data
+        const formData = new FormData(form);
+        const registrationData = {
+            child_name: formData.get('childName'),
+            grade: formData.get('grade'),
+            parent_name: formData.get('parentName'),
+            email: formData.get('email'),
+            phone: formData.get('phone'),
+            experience: formData.get('experience'),
+            special_needs: formData.get('specialNeeds') || '',
+            created_at: new Date().toISOString()
+        };
+        
+        // Track form submission attempt
+        performanceMonitor.trackFormInteraction('submit_attempt');
+        
+        // Submit to Supabase
+        const { data, error } = await supabase
+            .from('registrations')
+            .insert([registrationData])
+            .select();
+        
+        if (error) {
+            throw error;
         }
-    }, 150);
+        
+        // Send notification emails
+        await sendNotificationEmails(registrationData);
+        
+        // Show luxury success message with fireworks for ALL devices
+        showLuxurySuccessMessage();
+        
+        // Reset form with luxury animation
+        setTimeout(() => {
+            form.reset();
+            form.style.animation = 'luxury-fadeIn 0.8s ease-in-out';
+            
+            // Reset button with glow effect
+            submitButton.disabled = false;
+            submitButton.innerHTML = '<span>申込みを送信</span><div class="btn-arrow">→</div>';
+            addSuccessParticles(submitButton);
+        }, 1500);
+        
+    } catch (error) {
+        console.error('Form submission error:', error);
+        
+        // Track error
+        performanceMonitor.trackError(error, 'form_submission');
+        performanceMonitor.trackFormInteraction('submit_error');
+        
+        // Show error message
+        showLuxuryErrorMessage('申し込みの送信に失敗しました。もう一度お試しください。');
+        
+        // Reset button
+        submitButton.disabled = false;
+        submitButton.innerHTML = '<span>申込みを送信</span><div class="btn-arrow">→</div>';
+    }
 }
 
 function validateLuxuryForm(form) {
@@ -373,6 +621,131 @@ function addFocusGlow(field) {
 function removeFocusGlow(field) {
     field.style.transform = 'translateY(0)';
     field.style.boxShadow = '';
+}
+
+// Email notification functions
+async function sendNotificationEmails(registrationData) {
+    try {
+        // Send admin notification
+        await sendAdminNotification(registrationData);
+        
+        // Send thank you email to user
+        await sendThankYouEmail(registrationData);
+    } catch (error) {
+        console.error('Email notification error:', error);
+        // Don't throw error as form submission was successful
+    }
+}
+
+async function sendAdminNotification(data) {
+    try {
+        const { error } = await supabase.functions.invoke('send-admin-notification', {
+            body: {
+                to: 'globalbunny77@gmail.com',
+                subject: '新しいワークショップ申し込み',
+                data: data
+            }
+        });
+        
+        if (error) throw error;
+        console.log('Admin notification sent successfully');
+    } catch (error) {
+        console.error('Admin notification error:', error);
+        // Fallback: Log for manual notification
+        console.log('Admin notification data:', {
+            to: 'globalbunny77@gmail.com',
+            subject: '新しいワークショップ申し込み',
+            data: data
+        });
+    }
+}
+
+async function sendThankYouEmail(data) {
+    try {
+        const { error } = await supabase.functions.invoke('send-thank-you-email', {
+            body: {
+                to: data.email,
+                subject: 'ワークショップお申し込みありがとうございます',
+                data: data
+            }
+        });
+        
+        if (error) throw error;
+        console.log('Thank you email sent successfully');
+    } catch (error) {
+        console.error('Thank you email error:', error);
+        // Fallback: Log for manual follow-up
+        console.log('Thank you email data:', {
+            to: data.email,
+            subject: 'ワークショップお申し込みありがとうございます',
+            data: data
+        });
+    }
+}
+
+function showLuxuryErrorMessage(message) {
+    // Create luxury error modal
+    const modal = document.createElement('div');
+    modal.className = 'luxury-error-modal';
+    
+    modal.innerHTML = `
+        <div class="luxury-error-content">
+            <div class="luxury-error-icon">⚠️</div>
+            <h3>エラーが発生しました</h3>
+            <p>${message}</p>
+            <button onclick="this.parentElement.parentElement.remove()" class="luxury-error-close">
+                閉じる
+            </button>
+        </div>
+    `;
+    
+    // Add styles
+    modal.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10000;
+        animation: luxury-fadeIn 0.3s ease;
+    `;
+    
+    const content = modal.querySelector('.luxury-error-content');
+    content.style.cssText = `
+        background: linear-gradient(135deg, #1a1a2e, #16213e);
+        padding: 2rem;
+        border-radius: 1rem;
+        text-align: center;
+        max-width: 400px;
+        margin: 0 1rem;
+        border: 1px solid rgba(255, 107, 107, 0.3);
+    `;
+    
+    const closeBtn = modal.querySelector('.luxury-error-close');
+    closeBtn.style.cssText = `
+        background: linear-gradient(135deg, #ff6b6b, #ee5a6f);
+        color: white;
+        border: none;
+        padding: 0.8rem 1.5rem;
+        border-radius: 2rem;
+        margin-top: 1rem;
+        cursor: pointer;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    `;
+    
+    document.body.appendChild(modal);
+    
+    // Auto remove after 5 seconds
+    setTimeout(() => {
+        if (modal.parentNode) {
+            modal.remove();
+        }
+    }, 5000);
 }
 
 function showLuxurySuccessMessage() {
