@@ -415,5 +415,5 @@ function setCurrentLanguage(lang) {
 document.addEventListener('DOMContentLoaded', function() {
     const savedLanguage = getCurrentLanguage();
     setCurrentLanguage(savedLanguage);
-    updateLanguage();
+    // updateLanguage()は language-switcher.js で呼ばれる
 });

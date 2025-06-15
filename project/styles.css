@@ -4045,6 +4045,42 @@ html[lang="en"] .achievement-title {
     user-select: none;
 }
 
+/* モバイル用言語切り替えとハンバーガーメニュー */
+.mobile-language-switcher {
+    display: none;
+    align-items: center;
+    gap: 0.3rem;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 0.3rem 0.6rem;
+    border-radius: var(--radius-full-luxury);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+}
+
+.mobile-lang-btn {
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.8rem;
+    cursor: pointer;
+    padding: 0.2rem;
+    border-radius: var(--radius-sm-luxury);
+    transition: var(--transition-luxury-fast);
+    min-width: 32px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mobile-lang-btn:hover,
+.mobile-lang-btn.active {
+    color: var(--accent-luxury);
+    background: rgba(212, 175, 55, 0.15);
+    text-shadow: 0 0 8px rgba(212, 175, 55, 0.5);
+}
+
+
 /* Mobile responsive language switcher */
 @media (max-width: 768px) {
     .nav-links {
@@ -4078,6 +4114,17 @@ html[lang="en"] .achievement-title {
 }
 
 @media (max-width: 640px) {
+    /* モバイル用言語切り替えを表示 */
+    .mobile-language-switcher {
+        display: flex;
+    }
+    
+    /* デスクトップ用言語切り替えを非表示 */
+    .nav-links .language-switcher {
+        display: none;
+    }
+    
+    
     .nav-links {
         flex-direction: column;
         position: fixed;

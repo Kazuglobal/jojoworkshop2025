@@ -1,5 +1,15 @@
 // 言語切り替え機能
 
+// HTMLから呼び出される関数（後方互換性のため）
+function setLanguage(lang) {
+    console.log('setLanguage called with:', lang); // デバッグ用
+    switchLanguage(lang);
+}
+
+// グローバルに関数を公開
+window.setLanguage = setLanguage;
+window.switchLanguage = switchLanguage;
+
 // 言語を切り替える関数
 function switchLanguage(lang) {
     if (lang === currentLanguage) return;
@@ -181,15 +191,18 @@ function updateFormValidation() {
 // 言語切り替えボタンの状態を更新
 function updateLanguageSwitcher() {
     const languageSwitcher = document.querySelector('.language-switcher');
-    if (!languageSwitcher) return;
+    if (languageSwitcher) {
+        const buttons = languageSwitcher.querySelectorAll('.lang-btn');
+        buttons.forEach(btn => {
+            btn.classList.remove('active');
+            if (btn.getAttribute('data-lang') === currentLanguage) {
+                btn.classList.add('active');
+            }
+        });
+    }
     
-    const buttons = languageSwitcher.querySelectorAll('.lang-btn');
-    buttons.forEach(btn => {
-        btn.classList.remove('active');
-        if (btn.getAttribute('data-lang') === currentLanguage) {
-            btn.classList.add('active');
-        }
-    });
+    // モバイル版も更新
+    updateMobileLanguageSwitcher();
 }
 
 // 言語切り替えボタンを初期化（HTML内の既存要素を使用）
@@ -199,8 +212,26 @@ function initLanguageSwitcher() {
         // 既存のスイッチャーがある場合は、クリックイベントのみ追加
         const buttons = existingSwitcher.querySelectorAll('.lang-btn');
         buttons.forEach(btn => {
-            btn.addEventListener('click', function() {
+            // 既存のイベントリスナーをクリア
+            btn.replaceWith(btn.cloneNode(true));
+        });
+        
+        // 新しいボタンにイベントリスナーを追加
+        const newButtons = existingSwitcher.querySelectorAll('.lang-btn');
+        newButtons.forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
                 const lang = this.getAttribute('data-lang');
+                console.log('Language button clicked:', lang); // デバッグ用
+                switchLanguage(lang);
+            });
+            
+            // タッチデバイス用のイベントも追加
+            btn.addEventListener('touchstart', function(e) {
+                e.preventDefault();
+                const lang = this.getAttribute('data-lang');
+                console.log('Language button touched:', lang); // デバッグ用
                 switchLanguage(lang);
             });
         });
@@ -237,15 +268,70 @@ function initLanguageSwitcher() {
 
 // ページ読み込み時の初期化
 document.addEventListener('DOMContentLoaded', function() {
-    initLanguageSwitcher();
+    console.log('DOM loaded, initializing language switcher'); // デバッグ用
     
-    // URLパラメータから言語を取得
-    const urlParams = new URLSearchParams(window.location.search);
-    const langParam = urlParams.get('lang');
-    if (langParam && (langParam === 'en' || langParam === 'ja')) {
-        switchLanguage(langParam);
-    }
+    // 少し遅延させて確実に初期化
+    setTimeout(() => {
+        initLanguageSwitcher();
+        initMobileLanguageSwitcher();
+        
+        // URLパラメータから言語を取得
+        const urlParams = new URLSearchParams(window.location.search);
+        const langParam = urlParams.get('lang');
+        if (langParam && (langParam === 'en' || langParam === 'ja')) {
+            switchLanguage(langParam);
+        }
+    }, 100);
 });
+
+// さらに安全のため、ウィンドウが完全に読み込まれた後にも実行
+window.addEventListener('load', function() {
+    console.log('Window loaded, re-initializing language switcher'); // デバッグ用
+    setTimeout(() => {
+        initLanguageSwitcher();
+        initMobileLanguageSwitcher();
+    }, 100);
+});
+
+// モバイル用言語切り替えボタンの初期化
+function initMobileLanguageSwitcher() {
+    const mobileSwitcher = document.querySelector('.mobile-language-switcher');
+    if (mobileSwitcher) {
+        const buttons = mobileSwitcher.querySelectorAll('.mobile-lang-btn');
+        buttons.forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                const lang = this.getAttribute('data-lang');
+                console.log('Mobile language button clicked:', lang);
+                switchLanguage(lang);
+            });
+            
+            btn.addEventListener('touchstart', function(e) {
+                e.preventDefault();
+                const lang = this.getAttribute('data-lang');
+                console.log('Mobile language button touched:', lang);
+                switchLanguage(lang);
+            });
+        });
+        updateMobileLanguageSwitcher();
+    }
+}
+
+// モバイル言語切り替えボタンの状態を更新
+function updateMobileLanguageSwitcher() {
+    const mobileSwitcher = document.querySelector('.mobile-language-switcher');
+    if (!mobileSwitcher) return;
+    
+    const buttons = mobileSwitcher.querySelectorAll('.mobile-lang-btn');
+    buttons.forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.getAttribute('data-lang') === currentLanguage) {
+            btn.classList.add('active');
+        }
+    });
+}
+
 
 // 成功メッセージ関数を多言語対応に更新
 function showLocalizedSuccessMessage() {
