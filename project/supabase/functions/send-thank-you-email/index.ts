@@ -56,6 +56,7 @@ serve(async (req) => {
             <p><strong>📍 会場:</strong> UDCK（柏の葉アーバンデザインセンター）</p>
             <p><strong>🎯 対象:</strong> 小学生〜中学生（7歳〜15歳）</p>
             <p><strong>👥 定員:</strong> 20名限定</p>
+            <p><strong>💝 参加費:</strong> 完全無料</p>
             <p><strong>🌐 使用言語:</strong> 英語楽曲（日本語サポートあり）</p>
           </div>
         </div>
@@ -69,11 +70,8 @@ serve(async (req) => {
         </div>
         
         <div style="background: rgba(255, 255, 255, 0.05); padding: 25px; border-radius: 8px; margin-bottom: 25px;">
-          <h3 style="color: #d4af37; margin-top: 0;">📧 今後の流れ</h3>
+          <h3 style="color: #d4af37; margin-top: 0;">📧 お問い合わせについて</h3>
           <ul style="color: #ffffff; line-height: 1.8; padding-left: 20px;">
-            <li>24時間以内に詳細についてご連絡いたします</li>
-            <li>当日の持ち物や注意事項をお知らせします</li>
-            <li>参加費のお支払い方法をご案内します</li>
             <li>ご質問がございましたらお気軽にお問い合わせください</li>
           </ul>
         </div>

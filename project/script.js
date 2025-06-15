@@ -784,7 +784,7 @@ async function sendBackupEmails(data) {
 特別配慮事項: ${data.special_needs || 'なし'}
 申し込み日時: ${new Date(data.created_at).toLocaleString('ja-JP')}
 
-【重要】24時間以内にご連絡をお願いします。
+【重要】お申し込みありがとうございます。
 
 このメールは自動送信されています。
 Voice Atelier システム`
@@ -810,36 +810,48 @@ Voice Atelier システム`
     // Send user confirmation email
     const userEmailData = {
         access_key: web3formsKey,
-        subject: '【Voice Atelier】ワークショップお申し込みありがとうございます',
+        subject: '【Voice Atelier】ワークショップお申し込みありがとうございます✨',
         from_name: 'Voice Atelier',
         email: data.email,
         message: `${data.parent_name} 様
 
-この度は、世界的ボイストレーナー ジョジョ・アコスタ氏による特別ワークショップにお申し込みいただき、誠にありがとうございます。
+✨ この度は、世界的ボイストレーナー ジョジョ・アコスタ氏による特別ワークショップにお申し込みいただき、誠にありがとうございます！
 
-【お申し込み内容確認】
-参加者名: ${data.child_name}
-学年: ${data.grade}
-歌唱経験: ${data.experience}
+【✅ お申し込み内容確認】
+🧒 参加者名: ${data.child_name}
+📚 学年: ${data.grade}
+🎵 歌唱経験: ${data.experience}
+${data.special_needs ? `⚠️ 配慮事項: ${data.special_needs}` : ''}
 
-【ワークショップ詳細】
-日時: 2025年6月21日（土）10:30〜12:00
-会場: UDCK（柏の葉アーバンデザインセンター）
-対象: 小学生〜中学生（7歳〜15歳）
-定員: 20名限定
-参加費: 完全無料
+【📅 ワークショップ詳細】
+🗓️ 開催日時: 2025年6月21日（土）10:30〜12:00（90分間）
+📍 会場: UDCK（柏の葉アーバンデザインセンター）
+　　　  - つくばエクスプレス「柏の葉キャンパス駅」徒歩1分
+🎯 対象: 小学生〜中学生（7歳〜15歳）
+👥 定員: 20名限定
+💝 参加費: 完全無料
+🌐 使用言語: 英語楽曲（日本語サポートあり）
 
-【今後の流れ】
-• 24時間以内に詳細についてご連絡いたします
-• 当日の持ち物や注意事項をお知らせします
+【🎤 講師プロフィール】
+ジョジョ・アコスタ氏（フィリピン出身）
+「X-Factor」「レ・ミゼラブル」「アメリカン・アイドル」の出演者を指導した世界的ボイストレーナー
+
+【📧 お問い合わせについて】
 • ご質問がございましたらお気軽にお問い合わせください
 
-【お問い合わせ】
-メール: globalbunny77@gmail.com
-担当: 大舘
+【📞 お問い合わせ】
+📧 メール: globalbunny77@gmail.com
+👤 担当: 大舘
 
-Voice Atelier
-世界的ボイストレーナー ジョジョ・アコスタ氏ワークショップ`
+世界レベルの指導をお子様に体験していただけることを、スタッフ一同心より楽しみにしております！
+
+──────────────────
+🎼 Voice Atelier
+世界的ボイストレーナー ジョジョ・アコスタ氏ワークショップ
+──────────────────
+
+※このメールは自動送信されています
+申し込み日時: ${new Date(data.created_at).toLocaleString('ja-JP')}`
     };
     
     const userResponse = await fetch('https://api.web3forms.com/submit', {
@@ -962,7 +974,7 @@ function showEmailDelayNotification() {
             <p>お申し込みは正常に受付けました。</p>
             <p class="delay-message">
                 <strong>確認メールの送信に遅延が発生している可能性があります。</strong><br>
-                24時間以内に手動でご連絡いたします。
+                後ほど手動でご連絡いたします。
             </p>
             <div class="delay-contact">
                 <p>お急ぎの場合は直接ご連絡ください：</p>
