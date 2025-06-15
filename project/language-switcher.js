@@ -3,12 +3,17 @@
 // HTMLから呼び出される関数（後方互換性のため）
 function setLanguage(lang) {
     console.log('setLanguage called with:', lang); // デバッグ用
-    switchLanguage(lang);
+    if (typeof switchLanguage === 'function') {
+        switchLanguage(lang);
+    } else {
+        console.error('switchLanguage function not found');
+    }
 }
 
-// グローバルに関数を公開
-window.setLanguage = setLanguage;
-window.switchLanguage = switchLanguage;
+// 即座にグローバルに関数を公開（ホイスティング対策）
+if (typeof window !== 'undefined') {
+    window.setLanguage = setLanguage;
+}
 
 // 言語を切り替える関数
 function switchLanguage(lang) {
@@ -470,3 +475,7 @@ function showLocalizedErrorMessage(message) {
         }
     }, 5000);
 }
+
+// 最終的にグローバル関数を確実に公開
+window.setLanguage = setLanguage;
+window.switchLanguage = switchLanguage;

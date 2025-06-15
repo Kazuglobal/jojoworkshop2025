@@ -781,5 +781,23 @@
     <script src="translations.js"></script>
     <script src="language-switcher.js"></script>
     <script src="script.js"></script>
+    
+    <!-- 言語切り替え関数の確実な定義 -->
+    <script>
+        // セーフガード：関数が未定義の場合の緊急対応
+        if (typeof window.setLanguage === 'undefined') {
+            window.setLanguage = function(lang) {
+                console.log('Emergency setLanguage function called with:', lang);
+                // translations.jsの関数を直接呼び出し
+                if (typeof setCurrentLanguage === 'function') {
+                    setCurrentLanguage(lang);
+                }
+                // language-switcher.jsが読み込まれていれば呼び出し
+                if (typeof switchLanguage === 'function') {
+                    switchLanguage(lang);
+                }
+            };
+        }
+    </script>
 </body>
 </html>
