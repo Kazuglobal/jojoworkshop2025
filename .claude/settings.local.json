@@ -4,7 +4,8 @@
       "Bash(rg:*)",
       "WebFetch(domain:globalbunny.jp)",
       "Bash(mkdir:*)",
-      "Bash(chmod:*)"
+      "Bash(chmod:*)",
+      "Bash(grep:*)"
     ],
     "deny": []
   }

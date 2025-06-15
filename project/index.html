@@ -77,11 +77,16 @@
                 <span class="logo-text-luxury">Voice Atelier</span>
             </div>
             <div class="nav-links">
-                <a href="#about" class="nav-link-luxury">講師紹介</a>
-                <a href="#features" class="nav-link-luxury">特徴</a>
-                <a href="#program" class="nav-link-luxury">プログラム</a>
+                <a href="#about" class="nav-link-luxury" data-i18n="nav_about">講師紹介</a>
+                <a href="#features" class="nav-link-luxury" data-i18n="nav_features">特徴</a>
+                <a href="#program" class="nav-link-luxury" data-i18n="nav_program">プログラム</a>
+                <div class="language-switcher">
+                    <button class="lang-btn" data-lang="ja" onclick="setLanguage('ja')">日本語</button>
+                    <span class="lang-separator">|</span>
+                    <button class="lang-btn" data-lang="en" onclick="setLanguage('en')">English</button>
+                </div>
                 <a href="#register" class="nav-cta-luxury">
-                    <span>申込</span>
+                    <span data-i18n="nav_register">申込</span>
                     <div class="cta-shimmer"></div>
                 </a>
             </div>
@@ -115,23 +120,23 @@
                 <div class="hero-badges-luxury">
                     <div class="luxury-badge primary-badge">
                         <div class="badge-glow"></div>
-                        <span class="badge-text">✨ 完全無料・20名限定 ✨</span>
+                        <span class="badge-text" data-i18n="hero_badge_free">✨ 完全無料・20名限定 ✨</span>
                     </div>
                     <div class="luxury-badge secondary-badge">
-                        <span class="badge-text">🎉 第2回開催決定！</span>
+                        <span class="badge-text" data-i18n="hero_badge_second">🎉 第2回開催決定！</span>
                     </div>
                 </div>
                 
                 <h1 class="hero-title-luxury main-phrase">
-                    <span class="title-line main-line">自信を持って</span>
-                    <span class="title-line accent-line main-accent">大好きな歌を</span>
-                    <span class="title-line main-line">歌えるようになろう！</span>
+                    <span class="title-line main-line" data-i18n="hero_title_line1">自信を持って</span>
+                    <span class="title-line accent-line main-accent" data-i18n="hero_title_line2">大好きな歌を</span>
+                    <span class="title-line main-line" data-i18n="hero_title_line3">歌えるようになろう！</span>
                 </h1>
                 
                 <div class="hero-subtitle-luxury">
-                    <span class="subtitle-main">世界的ボイストレーナー</span>
-                    <span class="instructor-name-luxury">ジョジョ・アコスタ氏</span>
-                    <span class="workshop-label">特別ワークショップ</span>
+                    <span class="subtitle-main" data-i18n="hero_subtitle_main">世界的ボイストレーナー</span>
+                    <span class="instructor-name-luxury" data-i18n="hero_instructor_name">ジョジョ・アコスタ氏</span>
+                    <span class="workshop-label" data-i18n="hero_workshop_label">特別ワークショップ</span>
                 </div>
                 
                 <!-- メイン画像セクション -->
@@ -152,7 +157,7 @@
                     </div>
                 </div>
                 
-                <p class="hero-description-luxury">
+                <p class="hero-description-luxury" data-i18n="hero_description">
                     X-Factor、レ・ミゼラブル、アメリカンアイドルに生徒を送り出した世界レベルの指導を、UDCK（柏の葉キャンパス駅）で特別開催。独自の発声法で、子どもたちの歌声を劇的に変える90分間の魔法の体験をお届けします。
                 </p>
                 
@@ -160,15 +165,15 @@
                     <div class="detail-card-luxury">
                         <div class="detail-icon-luxury">📅</div>
                         <div class="detail-content">
-                            <div class="detail-title">開催日時</div>
-                            <div class="detail-text">2025年6月21日（土）<br>午前10時30分〜12時00分（90分間）</div>
+                            <div class="detail-title" data-i18n="hero_detail_date_title">開催日時</div>
+                            <div class="detail-text" data-i18n="hero_detail_date_text">2025年6月21日（土）<br>午前10時30分〜12時00分（90分間）</div>
                         </div>
                     </div>
                     <div class="detail-card-luxury">
                         <div class="detail-icon-luxury">📍</div>
                         <div class="detail-content">
-                            <div class="detail-title">会場・対象</div>
-                            <div class="detail-text">UDCK（柏の葉キャンパス駅）<br>小学生〜中学生対象（7歳〜15歳）</div>
+                            <div class="detail-title" data-i18n="hero_detail_venue_title">会場・対象</div>
+                            <div class="detail-text" data-i18n="hero_detail_venue_text">UDCK（柏の葉キャンパス駅）<br>小学生〜中学生対象（7歳〜15歳）</div>
                         </div>
                     </div>
                 </div>
@@ -181,8 +186,8 @@
     <section id="about" class="instructor-luxury">
         <div class="container">
             <div class="section-header-luxury fade-in-luxury">
-                <div class="section-badge">世界が認めた講師</div>
-                <h2 class="section-title-luxury">フィリピン発、国際舞台で活躍する生徒を多数輩出</h2>
+                <div class="section-badge" data-i18n="instructor_badge">世界が認めた講師</div>
+                <h2 class="section-title-luxury" data-i18n="instructor_title">フィリピン発、国際舞台で活躍する生徒を多数輩出</h2>
                 <div class="section-divider"></div>
             </div>
             
@@ -206,22 +211,22 @@
                             </div>
                         </div>
                         <div class="instructor-info-luxury">
-                            <h3 class="instructor-name-card">ジョジョ・アコスタ氏</h3>
-                            <p class="instructor-title-card">世界的ボイストレーナー</p>
-                            <p class="instructor-origin-card">🇵🇭 フィリピン発</p>
+                            <h3 class="instructor-name-card" data-i18n="instructor_name">ジョジョ・アコスタ氏</h3>
+                            <p class="instructor-title-card" data-i18n="instructor_title_card">世界的ボイストレーナー</p>
+                            <p class="instructor-origin-card" data-i18n="instructor_origin">🇵🇭 フィリピン発</p>
                             <div class="instructor-badges-luxury">
-                                <span class="badge-luxury">X-Factor指導</span>
-                                <span class="badge-luxury">レ・ミゼラブル</span>
-                                <span class="badge-luxury">アメリカンアイドル</span>
+                                <span class="badge-luxury" data-i18n="instructor_badge_xfactor">X-Factor指導</span>
+                                <span class="badge-luxury" data-i18n="instructor_badge_les_mis">レ・ミゼラブル</span>
+                                <span class="badge-luxury" data-i18n="instructor_badge_american_idol">アメリカンアイドル</span>
                             </div>
                         </div>
                     </div>
                     
                     <div class="instructor-description-luxury">
-                        <p>フィリピンを拠点に活動する世界的なボイストレーナーです。これまでに多数の生徒を「X-Factor」「レ・ミゼラブル」「アメリカンアイドル」といった世界的な舞台に送り出してきました。長年の指導経験を持ち、フィリピンでは有名なボイトレコーチとして知られています。</p>
+                        <p data-i18n="instructor_description">フィリピンを拠点に活動する世界的なボイストレーナーです。これまでに多数の生徒を「X-Factor」「レ・ミゼラブル」「アメリカンアイドル」といった世界的な舞台に送り出してきました。長年の指導経験を持ち、フィリピンでは有名なボイトレコーチとして知られています。</p>
                         <div class="highlight-quote">
                             <div class="quote-mark">"</div>
-                            <p>独自の発声法で、子どもたちの歌声を魔法のように変える指導力は、前回のワークショップでも大きな感動を呼びました。</p>
+                            <p data-i18n="instructor_quote">独自の発声法で、子どもたちの歌声を魔法のように変える指導力は、前回のワークショップでも大きな感動を呼びました。</p>
                         </div>
                     </div>
                 </div>
@@ -230,22 +235,22 @@
                     <div class="achievement-card-luxury">
                         <div class="achievement-icon-luxury">🏆</div>
                         <div class="achievement-content">
-                            <div class="achievement-title">国際舞台輩出</div>
-                            <div class="achievement-desc">多数の生徒を世界的舞台へ</div>
+                            <div class="achievement-title" data-i18n="achievement_international">国際舞台輩出</div>
+                            <div class="achievement-desc" data-i18n="achievement_international_desc">多数の生徒を世界的舞台へ</div>
                         </div>
                     </div>
                     <div class="achievement-card-luxury">
                         <div class="achievement-icon-luxury">🎭</div>
                         <div class="achievement-content">
-                            <div class="achievement-title">有名番組実績</div>
-                            <div class="achievement-desc">X-Factor、レ・ミゼラブル、アメリカンアイドル</div>
+                            <div class="achievement-title" data-i18n="achievement_shows">有名番組実績</div>
+                            <div class="achievement-desc" data-i18n="achievement_shows_desc">X-Factor、レ・ミゼラブル、アメリカンアイドル</div>
                         </div>
                     </div>
                     <div class="achievement-card-luxury">
                         <div class="achievement-icon-luxury">⭐</div>
                         <div class="achievement-content">
-                            <div class="achievement-title">指導経験</div>
-                            <div class="achievement-desc">長年のプロフェッショナル経験</div>
+                            <div class="achievement-title" data-i18n="achievement_experience">指導経験</div>
+                            <div class="achievement-desc" data-i18n="achievement_experience_desc">長年のプロフェッショナル経験</div>
                         </div>
                     </div>
                 </div>
@@ -257,8 +262,8 @@
     <section id="features" class="features-luxury">
         <div class="container">
             <div class="section-header-luxury fade-in-luxury">
-                <div class="section-badge">8つの特別な魅力</div>
-                <h2 class="section-title-luxury">世界レベルの指導を無料で体験できる奇跡の機会</h2>
+                <div class="section-badge" data-i18n="features_badge">8つの特別な魅力</div>
+                <h2 class="section-title-luxury" data-i18n="features_title">世界レベルの指導を無料で体験できる奇跡の機会</h2>
                 <div class="section-divider"></div>
             </div>
             
@@ -266,40 +271,40 @@
                 <div class="feature-card-luxury feature-highlight-luxury fade-in-luxury">
                     <div class="feature-glow"></div>
                     <div class="feature-icon-luxury">🌟</div>
-                    <h3 class="feature-title-luxury">世界レベルの指導</h3>
-                    <p class="feature-description-luxury">X-Factor、レ・ミゼラブル、アメリカンアイドルなど、国際舞台への豊富な指導実績を持つプロフェッショナルから直接学べます。</p>
-                    <div class="feature-highlight-badge-luxury">人気No.1</div>
+                    <h3 class="feature-title-luxury" data-i18n="feature_world_class">世界レベルの指導</h3>
+                    <p class="feature-description-luxury" data-i18n="feature_world_class_desc">X-Factor、レ・ミゼラブル、アメリカンアイドルなど、国際舞台への豊富な指導実績を持つプロフェッショナルから直接学べます。</p>
+                    <div class="feature-highlight-badge-luxury" data-i18n="feature_popular_badge">人気No.1</div>
                 </div>
                 
                 
                 <div class="feature-card-luxury fade-in-luxury">
                     <div class="feature-icon-luxury">💝</div>
-                    <h3 class="feature-title-luxury">完全無料</h3>
-                    <p class="feature-description-luxury">世界レベルの指導を無料でご提供。この機会を逃さずご参加ください。</p>
+                    <h3 class="feature-title-luxury" data-i18n="feature_free">完全無料</h3>
+                    <p class="feature-description-luxury" data-i18n="feature_free_desc">世界レベルの指導を無料でご提供。この機会を逃さずご参加ください。</p>
                 </div>
                 
                 <div class="feature-card-luxury fade-in-luxury">
                     <div class="feature-icon-luxury">👥</div>
-                    <h3 class="feature-title-luxury">少人数制</h3>
-                    <p class="feature-description-luxury">20名限定の少人数制で、一人ひとりに丁寧な指導を実施。</p>
+                    <h3 class="feature-title-luxury" data-i18n="feature_small_group">少人数制</h3>
+                    <p class="feature-description-luxury" data-i18n="feature_small_group_desc">20名限定の少人数制で、一人ひとりに丁寧な指導を実施。</p>
                 </div>
                 
                 <div class="feature-card-luxury fade-in-luxury">
                     <div class="feature-icon-luxury">🌍</div>
-                    <h3 class="feature-title-luxury">国際的視野</h3>
-                    <p class="feature-description-luxury">英語楽曲を通じて楽しみながら歌おう</p>
+                    <h3 class="feature-title-luxury" data-i18n="feature_international">国際的視野</h3>
+                    <p class="feature-description-luxury" data-i18n="feature_international_desc">英語楽曲を通じて楽しみながら歌おう</p>
                 </div>
                 
                 <div class="feature-card-luxury fade-in-luxury">
                     <div class="feature-icon-luxury">✨</div>
-                    <h3 class="feature-title-luxury">自信向上</h3>
-                    <p class="feature-description-luxury">声の力で自己表現を変革し、子どもの内なる自信を引き出します。人前で堂々と歌える力を身につけます。</p>
+                    <h3 class="feature-title-luxury" data-i18n="feature_confidence">自信向上</h3>
+                    <p class="feature-description-luxury" data-i18n="feature_confidence_desc">声の力で自己表現を変革し、子どもの内なる自信を引き出します。人前で堂々と歌える力を身につけます。</p>
                 </div>
                 
                 <div class="feature-card-luxury fade-in-luxury">
                     <div class="feature-icon-luxury">🎵</div>
-                    <h3 class="feature-title-luxury">独自メソッド</h3>
-                    <p class="feature-description-luxury">発声法など、アコスタ氏独自のテクニックで指導。</p>
+                    <h3 class="feature-title-luxury" data-i18n="feature_method">独自メソッド</h3>
+                    <p class="feature-description-luxury" data-i18n="feature_method_desc">発声法など、アコスタ氏独自のテクニックで指導。</p>
                 </div>
                 
             </div>
@@ -388,14 +393,14 @@
         <div class="container">
             <div class="register-content-luxury">
                 <div class="register-info-luxury fade-in-luxury">
-                    <div class="section-badge">お申込み</div>
-                    <h2 class="register-title-luxury">世界レベルの指導を無料で体験できる貴重な機会</h2>
-                    <p class="register-description-luxury">定員20名限定のため、お早めにお申込みください。</p>
+                    <div class="section-badge" data-i18n="register_badge">お申込み</div>
+                    <h2 class="register-title-luxury" data-i18n="register_title">世界レベルの指導を無料で体験できる貴重な機会</h2>
+                    <p class="register-description-luxury" data-i18n="register_description">定員20名限定のため、お早めにお申込みください。</p>
                     
                     <div class="register-urgency-luxury">
                         <div class="urgency-badge-luxury">
                             <div class="urgency-glow"></div>
-                            <span class="urgency-text">⚡ 残り席わずか ⚡</span>
+                            <span class="urgency-text" data-i18n="register_urgency">⚡ 残り席わずか ⚡</span>
                         </div>
                         <p class="urgency-description-luxury"></p>
                     </div>
@@ -403,23 +408,23 @@
                     <div class="register-highlights-luxury">
                         <div class="highlight-item-luxury">
                             <div class="highlight-icon-luxury">✅</div>
-                            <span>参加費完全無料</span>
+                            <span data-i18n="register_highlight_free">参加費完全無料</span>
                         </div>
                         <div class="highlight-item-luxury">
                             <div class="highlight-icon-luxury">👥</div>
-                            <span>定員20名限定</span>
+                            <span data-i18n="register_highlight_limited">定員20名限定</span>
                         </div>
                         <div class="highlight-item-luxury">
                             <div class="highlight-icon-luxury">🎯</div>
-                            <span>小学生〜中学生対象（7歳〜15歳）</span>
+                            <span data-i18n="register_highlight_target">小学生〜中学生対象（7歳〜15歳）</span>
                         </div>
                         <div class="highlight-item-luxury">
                             <div class="highlight-icon-luxury">🌐</div>
-                            <span>英語楽曲使用</span>
+                            <span data-i18n="register_highlight_english">英語楽曲使用</span>
                         </div>
                         <div class="highlight-item-luxury">
                             <div class="highlight-icon-luxury">📅</div>
-                            <span>2025年6月21日（土）10:30〜12:00</span>
+                            <span data-i18n="register_highlight_date">2025年6月21日（土）10:30〜12:00</span>
                         </div>
                     </div>
                 </div>
@@ -427,77 +432,77 @@
                 <div class="register-form-container-luxury fade-in-luxury">
                     <div class="form-glow-effect"></div>
                     <div class="form-header-luxury">
-                        <h3 class="form-title-luxury">参加申込みフォーム</h3>
-                        <p class="form-subtitle-luxury">必要事項をご入力ください</p>
+                        <h3 class="form-title-luxury" data-i18n="form_title">参加申込みフォーム</h3>
+                        <p class="form-subtitle-luxury" data-i18n="form_subtitle">必要事項をご入力ください</p>
                     </div>
                     
                     <form class="register-form-luxury" id="registrationForm">
                         <div class="form-group-luxury">
-                            <label class="form-label-luxury">参加者のお名前 <span class="required-luxury">*</span></label>
-                            <input type="text" class="form-input-luxury" name="childName" placeholder="例：田中 太郎" required>
+                            <label class="form-label-luxury" data-i18n="form_child_name">参加者のお名前 <span class="required-luxury" data-i18n="form_required">*</span></label>
+                            <input type="text" class="form-input-luxury" name="childName" data-i18n="form_child_name_placeholder" placeholder="例：田中 太郎" required>
                             <div class="form-error-luxury"></div>
                         </div>
                         
                         <div class="form-group-luxury">
-                            <label class="form-label-luxury">学年 <span class="required-luxury">*</span></label>
+                            <label class="form-label-luxury" data-i18n="form_grade">学年 <span class="required-luxury" data-i18n="form_required">*</span></label>
                             <select class="form-select-luxury" name="grade" required>
-                                <option value="">選択してください</option>
-                                <option value="小学1年生">小学1年生</option>
-                                <option value="小学2年生">小学2年生</option>
-                                <option value="小学3年生">小学3年生</option>
-                                <option value="小学4年生">小学4年生</option>
-                                <option value="小学5年生">小学5年生</option>
-                                <option value="小学6年生">小学6年生</option>
-                                <option value="中学1年生">中学1年生</option>
-                                <option value="中学2年生">中学2年生</option>
-                                <option value="中学3年生">中学3年生</option>
+                                <option value="" data-i18n="form_grade_placeholder">選択してください</option>
+                                <option value="小学1年生" data-i18n="grade_elementary_1">小学1年生</option>
+                                <option value="小学2年生" data-i18n="grade_elementary_2">小学2年生</option>
+                                <option value="小学3年生" data-i18n="grade_elementary_3">小学3年生</option>
+                                <option value="小学4年生" data-i18n="grade_elementary_4">小学4年生</option>
+                                <option value="小学5年生" data-i18n="grade_elementary_5">小学5年生</option>
+                                <option value="小学6年生" data-i18n="grade_elementary_6">小学6年生</option>
+                                <option value="中学1年生" data-i18n="grade_junior_1">中学1年生</option>
+                                <option value="中学2年生" data-i18n="grade_junior_2">中学2年生</option>
+                                <option value="中学3年生" data-i18n="grade_junior_3">中学3年生</option>
                             </select>
                             <div class="form-error-luxury"></div>
                         </div>
                         
                         <div class="form-group-luxury">
-                            <label class="form-label-luxury">保護者のお名前 <span class="required-luxury">*</span></label>
-                            <input type="text" class="form-input-luxury" name="parentName" placeholder="例：田中 花子" required>
+                            <label class="form-label-luxury" data-i18n="form_parent_name">保護者のお名前 <span class="required-luxury" data-i18n="form_required">*</span></label>
+                            <input type="text" class="form-input-luxury" name="parentName" data-i18n="form_parent_name_placeholder" placeholder="例：田中 花子" required>
                             <div class="form-error-luxury"></div>
                         </div>
                         
                         <div class="form-group-luxury">
-                            <label class="form-label-luxury">メールアドレス <span class="required-luxury">*</span></label>
-                            <input type="email" class="form-input-luxury" name="email" placeholder="例：example@gmail.com" required>
+                            <label class="form-label-luxury" data-i18n="form_email">メールアドレス <span class="required-luxury" data-i18n="form_required">*</span></label>
+                            <input type="email" class="form-input-luxury" name="email" data-i18n="form_email_placeholder" placeholder="例：example@gmail.com" required>
                             <div class="form-error-luxury"></div>
                         </div>
                         
                         <div class="form-group-luxury">
-                            <label class="form-label-luxury">電話番号 <span class="required-luxury">*</span></label>
-                            <input type="tel" class="form-input-luxury" name="phone" placeholder="例：090-1234-5678" required>
+                            <label class="form-label-luxury" data-i18n="form_phone">電話番号 <span class="required-luxury" data-i18n="form_required">*</span></label>
+                            <input type="tel" class="form-input-luxury" name="phone" data-i18n="form_phone_placeholder" placeholder="例：090-1234-5678" required>
                             <div class="form-error-luxury"></div>
                         </div>
                         
                         <div class="form-group-luxury">
-                            <label class="form-label-luxury">歌唱経験 <span class="required-luxury">*</span></label>
+                            <label class="form-label-luxury" data-i18n="form_experience">歌唱経験 <span class="required-luxury" data-i18n="form_required">*</span></label>
                             <select class="form-select-luxury" name="experience" required>
-                                <option value="">選択してください</option>
-                                <option value="初心者">初心者（歌を習ったことがない）</option>
-                                <option value="少し経験あり">少し経験あり（学校や習い事で歌った経験がある）</option>
-                                <option value="経験豊富">経験豊富（コーラスやボイストレーニングの経験がある）</option>
+                                <option value="" data-i18n="form_experience_placeholder">選択してください</option>
+                                <option value="初心者" data-i18n="form_experience_beginner">初心者（歌を習ったことがない）</option>
+                                <option value="少し経験あり" data-i18n="form_experience_some">少し経験あり（学校や習い事で歌った経験がある）</option>
+                                <option value="経験豊富" data-i18n="form_experience_experienced">経験豊富（コーラスやボイストレーニングの経験がある）</option>
                             </select>
                             <div class="form-error-luxury"></div>
                         </div>
                         
                         <div class="form-group-luxury">
-                            <label class="form-label-luxury">その他</label>
-                            <textarea class="form-textarea-luxury" name="specialNeeds" rows="3" placeholder="その他質問があればご記入ください（任意）"></textarea>
+                            <label class="form-label-luxury" data-i18n="form_special_needs">その他</label>
+                            <textarea class="form-textarea-luxury" name="specialNeeds" rows="3" data-i18n="form_special_needs_placeholder" placeholder="その他質問があればご記入ください（任意）"></textarea>
                             <div class="form-error-luxury"></div>
                         </div>
                         
                         <button type="submit" class="form-submit-luxury">
-                            <span class="btn-text">申込みを送信</span>
+                            <span class="btn-text" data-i18n="form_submit">申込みを送信</span>
                             <div class="btn-arrow">→</div>
                             <div class="btn-glow-effect"></div>
                         </button>
                         
                         <div class="form-note-luxury">
-                            <p>※ 定員に達し次第、受付を終了いたします</p>
+                            <p data-i18n="form_note">※ 定員に達し次第、受付を終了いたします</p>
                         </div>
                     </form>
                 </div>
@@ -509,21 +514,21 @@
     <section class="success-story-luxury">
         <div class="container">
             <div class="section-header-luxury fade-in-luxury">
-                <div class="section-badge">前回のワークショップ</div>
-                <h2 class="section-title-luxury">2024年3月の大成功レポート</h2>
+                <div class="section-badge" data-i18n="story_badge">前回のワークショップ</div>
+                <h2 class="section-title-luxury" data-i18n="story_title">2024年3月の大成功レポート</h2>
                 <div class="section-divider"></div>
             </div>
             
             <div class="story-content-luxury">
                 <div class="story-card-luxury fade-in-luxury">
                     <div class="story-header">
-                        <div class="story-date">2024年3月16日</div>
-                        <div class="story-location">UDCK 柏の葉</div>
+                        <div class="story-date" data-i18n="story_date">2024年3月16日</div>
+                        <div class="story-location" data-i18n="story_location">UDCK 柏の葉</div>
                     </div>
                     
                     <div class="story-main">
-                        <h3 class="story-title">世界クラスのボイストレーナーによる感動体験</h3>
-                        <p class="story-description">
+                        <h3 class="story-title" data-i18n="story_main_title">世界クラスのボイストレーナーによる感動体験</h3>
+                        <p class="story-description" data-i18n="story_description">
                             フィリピン出身の国際的ボイストレーナー、ジョジョ・アコスタ氏による
                             子どもたちのためのボーカルトレーニングワークショップが大成功を収めました。
                         </p>
@@ -532,45 +537,45 @@
                             <div class="highlight-item">
                                 <div class="highlight-icon">🎤</div>
                                 <div class="highlight-content">
-                                    <h4>プロの指導法</h4>
-                                    <p>「X-Factor」「レ・ミゼラブル」「アメリカン・アイドル」の出演者を指導した経験を活かした本格的なレッスン</p>
+                                    <h4 data-i18n="story_professional_title">プロの指導法</h4>
+                                    <p data-i18n="story_professional_desc">「X-Factor」「レ・ミゼラブル」「アメリカン・アイドル」の出演者を指導した経験を活かした本格的なレッスン</p>
                                 </div>
                             </div>
                             
                             <div class="highlight-item">
                                 <div class="highlight-icon">😊</div>
                                 <div class="highlight-content">
-                                    <h4>楽しい雰囲気作り</h4>
-                                    <p>ユーモアを交えた指導で、最初は緊張していた子どもたちも次第にリラックスし、自信を持って歌えるように</p>
+                                    <h4 data-i18n="story_atmosphere_title">楽しい雰囲気作り</h4>
+                                    <p data-i18n="story_atmosphere_desc">ユーモアを交えた指導で、最初は緊張していた子どもたちも次第にリラックスし、自信を持って歌えるように</p>
                                 </div>
                             </div>
                             
                             <div class="highlight-item">
                                 <div class="highlight-icon">🎵</div>
                                 <div class="highlight-content">
-                                    <h4>実践的な学び</h4>
-                                    <p>呼吸法や発声法の基礎から、「ホール・ニュー・ワールド」のグループ練習まで、実践的なスキルを習得</p>
+                                    <h4 data-i18n="story_practical_title">実践的な学び</h4>
+                                    <p data-i18n="story_practical_desc">呼吸法や発声法の基礎から、「ホール・ニュー・ワールド」のグループ練習まで、実践的なスキルを習得</p>
                                 </div>
                             </div>
                         </div>
                         
                         <div class="story-quote">
-                            <blockquote>
+                            <blockquote data-i18n="story_quote_text">
                                 "パンデミック後の制限が緩和され、子どもたちが再び音楽表現を楽しめる貴重な機会となりました。
                                 参加者全員が自信を持って歌えるようになり、コミュニケーション能力の向上も見られました。"
                             </blockquote>
-                            <cite>- ジョジョ・アコスタ氏</cite>
+                            <cite data-i18n="story_quote_author">- ジョジョ・アコスタ氏</cite>
                         </div>
                         
                         <div class="story-footer">
                             <div class="story-links">
-                                <a href="https://globalbunny.jp/1381/" target="_blank" class="story-link">
+                                <a href="https://globalbunny.jp/1381/" target="_blank" class="story-link" data-i18n="story_link_text">
                                     📖 前回のワークショップ詳細レポートを読む
                                 </a>
                             </div>
                             <div class="story-cta">
                                 <button onclick="scrollToForm()" class="story-btn">
-                                    <span>今すぐ申し込む</span>
+                                    <span data-i18n="story_cta">今すぐ申し込む</span>
                                     <div class="btn-shine"></div>
                                 </button>
                             </div>
@@ -585,8 +590,8 @@
     <section class="faq-luxury">
         <div class="container">
             <div class="section-header-luxury fade-in-luxury">
-                <div class="section-badge">よくあるご質問</div>
-                <h2 class="section-title-luxury">参加前の疑問にお答えします</h2>
+                <div class="section-badge" data-i18n="faq_badge">よくあるご質問</div>
+                <h2 class="section-title-luxury" data-i18n="faq_title">参加前の疑問にお答えします</h2>
                 <div class="section-divider"></div>
             </div>
             
@@ -594,13 +599,13 @@
                 <div class="faq-item-luxury fade-in-luxury">
                     <div class="faq-question-luxury">
                         <span class="faq-icon-luxury">Q</span>
-                        <span class="faq-text-luxury">歌が苦手な子でも参加できますか？</span>
+                        <span class="faq-text-luxury" data-i18n="faq_q1">歌が苦手な子でも参加できますか？</span>
                         <span class="faq-toggle-luxury">+</span>
                     </div>
                     <div class="faq-answer-luxury">
-                        <p><strong>もちろんです！</strong>ジョジョ・アコスタ氏は世界中の初心者から経験者まで指導してきた実績があります。このワークショップは「歌うことの楽しさ」を第一に考えており、技術よりも<strong>自信と表現力の向上</strong>に重点を置いています。</p>
+                        <p data-i18n="faq_a1"><strong>もちろんです！</strong>ジョジョ・アコスタ氏は世界中の初心者から経験者まで指導してきた実績があります。このワークショップは「歌うことの楽しさ」を第一に考えており、技術よりも<strong>自信と表現力の向上</strong>に重点を置いています。</p>
                         <div class="faq-cta">
-                            <button class="faq-apply-btn" onclick="scrollToForm()">今すぐ申し込む</button>
+                            <button class="faq-apply-btn" onclick="scrollToForm()" data-i18n="faq_apply_now">今すぐ申し込む</button>
                         </div>
                     </div>
                 </div>
@@ -608,33 +613,33 @@
                 <div class="faq-item-luxury fade-in-luxury">
                     <div class="faq-question-luxury">
                         <span class="faq-icon-luxury">Q</span>
-                        <span class="faq-text-luxury">英語が分からなくても大丈夫ですか？</span>
+                        <span class="faq-text-luxury" data-i18n="faq_q2">英語が分からなくても大丈夫ですか？</span>
                         <span class="faq-toggle-luxury">+</span>
                     </div>
                     <div class="faq-answer-luxury">
-                        <p><strong>全く問題ありません！</strong>日本語でのサポートスタッフも常駐します。</p>
+                        <p data-i18n="faq_a2"><strong>全く問題ありません！</strong>日本語でのサポートスタッフも常駐します。</p>
                     </div>
                 </div>
                 
                 <div class="faq-item-luxury fade-in-luxury">
                     <div class="faq-question-luxury">
                         <span class="faq-icon-luxury">Q</span>
-                        <span class="faq-text-luxury">保護者の見学は可能ですか？</span>
+                        <span class="faq-text-luxury" data-i18n="faq_q3">保護者の見学は可能ですか？</span>
                         <span class="faq-toggle-luxury">+</span>
                     </div>
                     <div class="faq-answer-luxury">
-                        <p><strong>はい、問題ないです！</p>
+                        <p data-i18n="faq_a3"><strong>はい、問題ないです！</strong></p>
                     </div>
                 </div>
                 
                 <div class="faq-item-luxury fade-in-luxury">
                     <div class="faq-question-luxury">
                         <span class="faq-icon-luxury">Q</span>
-                        <span class="faq-text-luxury">持ち物はありますか？</span>
+                        <span class="faq-text-luxury" data-i18n="faq_q4">持ち物はありますか？</span>
                         <span class="faq-toggle-luxury">+</span>
                     </div>
                     <div class="faq-answer-luxury">
-                        <p><strong>特別な持ち物は必要ありません。</p>
+                        <p data-i18n="faq_a4"><strong>特別な持ち物は必要ありません。</strong></p>
 
                     </div>
                 </div>
@@ -642,13 +647,13 @@
                 <div class="faq-item-luxury fade-in-luxury">
                     <div class="faq-question-luxury">
                         <span class="faq-icon-luxury">Q</span>
-                        <span class="faq-text-luxury">参加費用はかかりますか？</span>
+                        <span class="faq-text-luxury" data-i18n="faq_q5">参加費用はかかりますか？</span>
                         <span class="faq-toggle-luxury">+</span>
                     </div>
                     <div class="faq-answer-luxury">
-                        <p><strong>完全無料です！</strong>世界的なボイストレーナーによる特別ワークショップを、多くのお子様に体験していただきたいという想いから、参加費は一切いただいておりません。ただし、<strong>定員20名限定</strong>となっておりますので、お早めにお申し込みください。</p>
+                        <p data-i18n="faq_a5"><strong>完全無料です！</strong>世界的なボイストレーナーによる特別ワークショップを、多くのお子様に体験していただきたいという想いから、参加費は一切いただいておりません。ただし、<strong>定員20名限定</strong>となっておりますので、お早めにお申し込みください。</p>
                         <div class="faq-cta">
-                            <button class="faq-apply-btn" onclick="scrollToForm()">無料で申し込む</button>
+                            <button class="faq-apply-btn" onclick="scrollToForm()" data-i18n="faq_apply_free">無料で申し込む</button>
                         </div>
                     </div>
                 </div>
@@ -656,40 +661,33 @@
                 <div class="faq-item-luxury fade-in-luxury">
                     <div class="faq-question-luxury">
                         <span class="faq-icon-luxury">Q</span>
-                        <span class="faq-text-luxury">兄弟姉妹での参加は可能ですか？</span>
+                        <span class="faq-text-luxury" data-i18n="faq_q6">兄弟姉妹での参加は可能ですか？</span>
                         <span class="faq-toggle-luxury">+</span>
                     </div>
                     <div class="faq-answer-luxury">
-                        <p><strong>もちろん可能です！</strong>対象年齢（小学生〜中学生）内であれば、兄弟姉妹での参加を歓迎いたします。ただし、<strong>お一人ずつお申し込み</strong>をお願いいたします。</p>
+                        <p data-i18n="faq_a6"><strong>もちろん可能です！</strong>対象年齢（小学生〜中学生）内であれば、兄弟姉妹での参加を歓迎いたします。ただし、<strong>お一人ずつお申し込み</strong>をお願いいたします。</p>
                     </div>
                 </div>
                 
                 <div class="faq-item-luxury fade-in-luxury">
                     <div class="faq-question-luxury">
                         <span class="faq-icon-luxury">Q</span>
-                        <span class="faq-text-luxury">申し込み後のキャンセルは可能ですか？</span>
+                        <span class="faq-text-luxury" data-i18n="faq_q7">申し込み後のキャンセルは可能ですか？</span>
                         <span class="faq-toggle-luxury">+</span>
                     </div>
                     <div class="faq-answer-luxury">
-                        <p><strong>キャンセルは可能です。</strong>体調不良やご都合が悪くなった場合は、<strong>前日までに</strong>メール（<a href="mailto:globalbunny77@gmail.com">globalbunny77@gmail.com</a>）でご連絡ください。無料のイベントですので、キャンセル料は発生しません。ただし、他の参加希望者のためにも、お早めのご連絡をお願いいたします。</p>
+                        <p data-i18n="faq_a7"><strong>キャンセルは可能です。</strong>体調不良やご都合が悪くなった場合は、<strong>前日までに</strong>メール（<a href="mailto:globalbunny77@gmail.com">globalbunny77@gmail.com</a>）でご連絡ください。無料のイベントですので、キャンセル料は発生しません。ただし、他の参加希望者のためにも、お早めのご連絡をお願いいたします。</p>
                     </div>
                 </div>
                 
                 <div class="faq-item-luxury fade-in-luxury">
                     <div class="faq-question-luxury">
                         <span class="faq-icon-luxury">Q</span>
-                        <span class="faq-text-luxury">アクセス方法を教えてください</span>
+                        <span class="faq-text-luxury" data-i18n="faq_q8">アクセス方法を教えてください</span>
                         <span class="faq-toggle-luxury">+</span>
                     </div>
                     <div class="faq-answer-luxury">
-                        <p><strong>UDCK（柏の葉アーバンデザインセンター）</strong>へのアクセス：</p>
-                        <ul class="faq-list">
-                            <li>🚃 <strong>つくばエクスプレス「柏の葉キャンパス駅」より徒歩1分</strong></li>
-                            <li>🚗 <strong>駐車場：</strong>近隣の駐車場をご利用ください</li>
-                            <li>🚌 <strong>バス：</strong>柏駅東口より阪東バス「柏の葉キャンパス駅西口」下車</li>
-                            <li>📍 <strong>住所：</strong>千葉県柏市柏の葉5-1-5</li>
-                        </ul>
-                        <p>詳細な地図は下部のGoogleマップをご確認ください。</p>
+                        <p data-i18n="faq_a8"><strong>UDCK（柏の葉アーバンデザインセンター）</strong>へのアクセス：<ul class="faq-list"><li>🚃 <strong>つくばエクスプレス「柏の葉キャンパス駅」より徒歩1分</strong></li><li>🚗 <strong>駐車場：</strong>近隣の駐車場をご利用ください</li><li>🚌 <strong>バス：</strong>柏駅東口より阪東バス「柏の葉キャンパス駅西口」下車</li><li>📍 <strong>住所：</strong>千葉県柏市柏の葉5-1-5</li></ul><p>詳細な地図は下部のGoogleマップをご確認ください。</p>
                     </div>
                 </div>
             </div>
@@ -704,14 +702,14 @@
                     <div class="logo-icon-luxury">🎼</div>
                     <span class="logo-text-luxury">Voice Atelier</span>
                 </div>
-                <p class="footer-description-luxury">
+                <p class="footer-description-luxury" data-i18n="footer_description">
                     世界的ボイストレーナー ジョジョ・アコスタ氏による特別ワークショップ
                 </p>
                 <ul class="footer-info-luxury info-list">
-    <li><strong>開催日時：</strong>2025年6月21日（土）午前10時30〜12時00分</li>
-    <li><strong>会場：</strong>UDCK（柏の葉キャンパス駅）</li>
-    <li><strong>対象：</strong>小学生〜中学生（7歳〜15歳）</li>
-    <li><strong>参加費：</strong>完全無料・定員20名限定</li>
+    <li><strong data-i18n="footer_date">開催日時：</strong><span data-i18n="footer_date_text">2025年6月21日（土）午前10時30〜12時00分</span></li>
+    <li><strong data-i18n="footer_venue">会場：</strong><span data-i18n="footer_venue_text">UDCK（柏の葉キャンパス駅）</span></li>
+    <li><strong data-i18n="footer_target">対象：</strong><span data-i18n="footer_target_text">小学生〜中学生（7歳〜15歳）</span></li>
+    <li><strong data-i18n="footer_fee">参加費：</strong><span data-i18n="footer_fee_text">完全無料・定員20名限定</span></li>
 </ul>
 <div class="map-embed-luxury">
     <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1868.1627038326337!2d139.95013926026928!3d35.894620339025145!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x60189c16a35b83e9%3A0xa256f90fb549787c!2sUDCK%20(Kashiwanoha%20Urban%20Design%20Center)!5e0!3m2!1sen!2sjp!4v1749874351673!5m2!1sen!2sjp" width="100%" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
@@ -733,26 +731,26 @@
     }
 </style>
                 <div class="footer-social-luxury">
-                    <p>お問い合わせ：<a href="mailto:globalbunny77@gmail.com" class="footer-link-luxury">globalbunny77@gmail.com</a> 大舘
+                    <p><span data-i18n="footer_contact">お問い合わせ：</span><a href="mailto:globalbunny77@gmail.com" class="footer-link-luxury">globalbunny77@gmail.com</a> <span data-i18n="footer_contact_person">大舘</span>
                     </p>
                 </div>
             </div>
             
             <!-- Social Sharing Section -->
             <div class="social-sharing-section">
-                <h3 style="color: #d4af37; margin-bottom: 1rem; text-align: center;">このワークショップをシェア</h3>
+                <h3 style="color: #d4af37; margin-bottom: 1rem; text-align: center;" data-i18n="footer_share_title">このワークショップをシェア</h3>
                 <div class="social-buttons">
                     <button class="social-btn twitter-btn" onclick="shareOnTwitter()">
                         <span class="social-icon">🐦</span>
-                        <span>X (Twitter)</span>
+                        <span data-i18n="footer_share_twitter">X (Twitter)</span>
                     </button>
                     <button class="social-btn line-btn" onclick="shareOnLine()">
                         <span class="social-icon">💬</span>
-                        <span>LINE</span>
+                        <span data-i18n="footer_share_line">LINE</span>
                     </button>
                     <button class="social-btn copy-btn" onclick="copyUrl()">
                         <span class="social-icon">📋</span>
-                        <span>URLコピー</span>
+                        <span data-i18n="footer_share_copy">URLコピー</span>
                     </button>
                 </div>
             </div>
@@ -761,6 +759,8 @@
 
     <!-- Supabase JavaScript SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.min.js"></script>
+    <script src="translations.js"></script>
+    <script src="language-switcher.js"></script>
     <script src="script.js"></script>
 </body>
 </html>

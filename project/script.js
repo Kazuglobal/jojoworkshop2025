@@ -195,7 +195,8 @@ function fallbackCopyTextToClipboard(text) {
 
 function showCopySuccess() {
     const notification = document.createElement('div');
-    notification.innerHTML = '✅ URLをコピーしました！';
+    const message = (typeof t === 'function') ? t('copy_success') : '✅ URLをコピーしました！';
+    notification.innerHTML = message;
     notification.style.cssText = `
         position: fixed;
         top: 20px;
@@ -219,7 +220,8 @@ function showCopySuccess() {
 
 function showCopyError() {
     const notification = document.createElement('div');
-    notification.innerHTML = '❌ コピーに失敗しました';
+    const message = (typeof t === 'function') ? t('copy_error') : '❌ コピーに失敗しました';
+    notification.innerHTML = message;
     notification.style.cssText = `
         position: fixed;
         top: 20px;
@@ -459,7 +461,8 @@ async function handleLuxuryFormSubmit(e) {
     
     // Luxury loading state with particle effects for ALL devices
     submitButton.disabled = true;
-    submitButton.innerHTML = '<span>送信中...</span><div class="luxury-loading-spinner"></div>';
+    const sendingText = (typeof t === 'function') ? t('form_sending') : '送信中...';
+    submitButton.innerHTML = `<span>${sendingText}</span><div class="luxury-loading-spinner"></div>`;
     
     // Add luxury loading spinner
     const spinner = submitButton.querySelector('.luxury-loading-spinner');
@@ -515,7 +518,8 @@ async function handleLuxuryFormSubmit(e) {
             
             // Reset button with glow effect
             submitButton.disabled = false;
-            submitButton.innerHTML = '<span>申込みを送信</span><div class="btn-arrow">→</div>';
+            const submitText = (typeof t === 'function') ? t('form_submit') : '申込みを送信';
+            submitButton.innerHTML = `<span>${submitText}</span><div class="btn-arrow">→</div>`;
             addSuccessParticles(submitButton);
         }, 1500);
         
@@ -527,11 +531,15 @@ async function handleLuxuryFormSubmit(e) {
         performanceMonitor.trackFormInteraction('submit_error');
         
         // Show error message
-        showLuxuryErrorMessage('申し込みの送信に失敗しました。もう一度お試しください。');
+        const errorMessage = (typeof t === 'function') ? 
+            t('form_error_submit') : 
+            '申し込みの送信に失敗しました。もう一度お試しください。';
+        showLuxuryErrorMessage(errorMessage);
         
         // Reset button
         submitButton.disabled = false;
-        submitButton.innerHTML = '<span>申込みを送信</span><div class="btn-arrow">→</div>';
+        const submitText = (typeof t === 'function') ? t('form_submit') : '申込みを送信';
+        submitButton.innerHTML = `<span>${submitText}</span><div class="btn-arrow">→</div>`;
     }
 }
 
@@ -553,28 +561,39 @@ function validateLuxuryField(field, showError = true) {
     const fieldName = field.name;
     let errorMessage = '';
     
+    // Use translation function if available
+    const translateError = (key) => {
+        return (typeof t === 'function') ? t(key) : {
+            'form_error_required': 'この項目は必須です。',
+            'form_error_email': '有効なメールアドレスを入力してください。',
+            'form_error_phone': '有効な電話番号を入力してください（例：090-1234-5678）。',
+            'form_error_name_length': '2文字以上で入力してください。',
+            'form_error_name_japanese': '日本語で入力してください。'
+        }[key] || key;
+    };
+    
     // Required field check
     if (field.required && !value) {
-        errorMessage = 'この項目は必須です。';
+        errorMessage = translateError('form_error_required');
     } else if (value) {
         // Enhanced validation with luxury feedback
         switch (fieldName) {
             case 'email':
                 if (!isValidEmail(value)) {
-                    errorMessage = '有効なメールアドレスを入力してください。';
+                    errorMessage = translateError('form_error_email');
                 }
                 break;
             case 'phone':
                 if (!isValidPhone(value)) {
-                    errorMessage = '有効な電話番号を入力してください（例：090-1234-5678）。';
+                    errorMessage = translateError('form_error_phone');
                 }
                 break;
             case 'childName':
             case 'parentName':
                 if (value.length < 2) {
-                    errorMessage = '2文字以上で入力してください。';
-                } else if (!/^[ぁ-んァ-ヶー一-龠\s]+$/.test(value)) {
-                    errorMessage = '日本語で入力してください。';
+                    errorMessage = translateError('form_error_name_length');
+                } else if (!/^[ぁ-んァ-ヶー一-龠\s]+$/.test(value) && (typeof currentLanguage === 'undefined' || currentLanguage === 'ja')) {
+                    errorMessage = translateError('form_error_name_japanese');
                 }
                 break;
         }
@@ -737,11 +756,18 @@ async function sendAdminNotification(data) {
 async function sendThankYouEmail(data) {
     console.log(`📧 Sending thank you email to ${data.email}...`);
     
+    // Determine language and function to use
+    const isEnglish = (typeof currentLanguage !== 'undefined' && currentLanguage === 'en');
+    const functionName = isEnglish ? 'send-thank-you-email-en' : 'send-thank-you-email';
+    const subject = isEnglish ? 
+        '【Voice Atelier】Thank you for your workshop registration' : 
+        '【Voice Atelier】ワークショップお申し込みありがとうございます';
+    
     try {
-        const { data: result, error } = await supabase.functions.invoke('send-thank-you-email', {
+        const { data: result, error } = await supabase.functions.invoke(functionName, {
             body: {
                 to: data.email,
-                subject: '【Voice Atelier】ワークショップお申し込みありがとうございます',
+                subject: subject,
                 data: data
             }
         });
@@ -808,12 +834,56 @@ Voice Atelier システム`
     console.log('✅ Admin notification sent via Web3Forms:', adminResult);
     
     // Send user confirmation email
+    const isEnglish = (typeof currentLanguage !== 'undefined' && currentLanguage === 'en');
+    
     const userEmailData = {
         access_key: web3formsKey,
-        subject: '【Voice Atelier】ワークショップお申し込みありがとうございます✨',
+        subject: isEnglish ? 
+            '【Voice Atelier】Thank you for your workshop registration✨' :
+            '【Voice Atelier】ワークショップお申し込みありがとうございます✨',
         from_name: 'Voice Atelier',
         email: data.email,
-        message: `${data.parent_name} 様
+        message: isEnglish ? 
+            `Dear ${data.parent_name},
+
+✨ Thank you for registering for the special workshop by world-class voice trainer Mr. JoJo Acosta! We are delighted to have you join us!
+
+【✅ Registration Details】
+🧒 Participant: ${data.child_name}
+📚 Grade: ${data.grade}
+🎵 Experience: ${data.experience}
+${data.special_needs ? `⚠️ Special needs: ${data.special_needs}` : ''}
+
+【📅 Workshop Details】
+🗓️ Date & Time: June 21, 2025 (Saturday) 10:30 AM - 12:00 PM (90 minutes)
+📍 Venue: UDCK (Kashiwa-no-ha Urban Design Center)
+　　　  - 1-minute walk from Tsukuba Express "Kashiwa-no-ha Campus Station"
+🎯 Target: Elementary to junior high students (ages 7-15)
+👥 Capacity: Limited to 20 participants
+💝 Fee: Completely free
+🌐 Language: English songs (Japanese support available)
+
+【🎤 About the Instructor】
+Mr. JoJo Acosta (From the Philippines)
+World-class voice trainer who has coached performers from "X-Factor," "Les Misérables," and "American Idol"
+
+【📧 Contact Information】
+• If you have any questions, please feel free to contact us
+
+【📞 Contact】
+📧 Email: globalbunny77@gmail.com
+👤 Contact: Odate
+
+We look forward to providing your child with world-level instruction!
+
+──────────────────
+🎼 Voice Atelier
+World-Class Voice Trainer Mr. JoJo Acosta Workshop
+──────────────────
+
+*This email was sent automatically
+Registration date: ${new Date(data.created_at).toLocaleString('en-US')}` :
+            `${data.parent_name} 様
 
 ✨ この度は、世界的ボイストレーナー ジョジョ・アコスタ氏による特別ワークショップにお申し込みいただき、誠にありがとうございます！
 
@@ -1033,7 +1103,13 @@ function showEmailDelayNotification() {
 }
 
 function showLuxuryErrorMessage(message) {
-    // Create luxury error modal
+    // Use the localized version if language switcher is available
+    if (typeof showLocalizedErrorMessage === 'function') {
+        showLocalizedErrorMessage(message);
+        return;
+    }
+    
+    // Fallback to original function
     const modal = document.createElement('div');
     modal.className = 'luxury-error-modal';
     
@@ -1098,7 +1174,13 @@ function showLuxuryErrorMessage(message) {
 }
 
 function showLuxurySuccessMessage() {
-    // Create luxury success modal with enhanced effects for ALL devices
+    // Use the localized version if language switcher is available
+    if (typeof showLocalizedSuccessMessage === 'function') {
+        showLocalizedSuccessMessage();
+        return;
+    }
+    
+    // Fallback to original function
     const modal = document.createElement('div');
     modal.className = 'luxury-success-modal';
     
