@@ -4012,6 +4012,16 @@ html[lang="en"] .achievement-title {
     display: flex;
     align-items: center;
     justify-content: center;
+    gap: 0.3rem;
+}
+
+.flag-icon {
+    font-size: 1rem;
+    line-height: 1;
+}
+
+.lang-text {
+    font-size: 0.85rem;
 }
 
 .lang-btn:hover {
@@ -4051,6 +4061,15 @@ html[lang="en"] .achievement-title {
         padding: 0.2rem 0.4rem;
         min-width: 38px;
         height: 28px;
+        gap: 0.25rem;
+    }
+    
+    .flag-icon {
+        font-size: 0.9rem;
+    }
+    
+    .lang-text {
+        font-size: 0.7rem;
     }
     
     .nav-link-luxury {
@@ -4092,6 +4111,47 @@ html[lang="en"] .achievement-title {
         width: 100%;
         max-width: 300px;
         text-align: center;
+    }
+}
+
+/* Very small screens - optimize flag visibility */
+@media (max-width: 480px) {
+    .language-switcher {
+        padding: 0.3rem 0.6rem;
+        gap: 0.2rem;
+    }
+    
+    .lang-btn {
+        min-width: 34px;
+        height: 26px;
+        padding: 0.15rem 0.3rem;
+        gap: 0.2rem;
+    }
+    
+    .flag-icon {
+        font-size: 0.8rem;
+    }
+    
+    .lang-text {
+        display: none; /* Hide text on very small screens, show only flags */
+    }
+    
+    .lang-separator {
+        margin: 0 0.15rem;
+        font-size: 0.7rem;
+    }
+}
+
+/* Touch devices optimization */
+@media (hover: none) {
+    .lang-btn {
+        min-width: 48px;
+        height: 36px;
+    }
+    
+    .lang-btn:active {
+        transform: scale(0.95);
+        background: rgba(255, 255, 255, 0.15);
     }
 }
 
