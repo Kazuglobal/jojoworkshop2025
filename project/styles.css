@@ -3723,3 +3723,65 @@ body {
     }
 }
 
+
+/* FAQ CTA Button Styles */
+.faq-cta {
+    margin-top: 1.5rem;
+    text-align: center;
+}
+
+.faq-apply-btn {
+    background: linear-gradient(135deg, var(--accent-luxury), var(--accent-light-luxury));
+    color: var(--bg-luxury);
+    border: none;
+    padding: 12px 24px;
+    border-radius: var(--radius-full-luxury);
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.faq-apply-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(212, 175, 55, 0.3);
+}
+
+.faq-apply-btn:active {
+    transform: translateY(0);
+}
+
+/* FAQ List Styles */
+.faq-list {
+    margin: 1rem 0;
+    padding-left: 0;
+    list-style: none;
+}
+
+.faq-list li {
+    margin-bottom: 0.8rem;
+    padding-left: 0;
+    color: var(--text-secondary-luxury);
+    line-height: 1.6;
+}
+
+/* Enhanced FAQ Answer Styles */
+.faq-answer-luxury {
+    color: var(--text-secondary-luxury);
+    line-height: 1.7;
+}
+
+.faq-answer-luxury strong {
+    color: var(--accent-luxury);
+}
+
+.faq-answer-luxury ul {
+    margin: 1rem 0;
+}
+
+.faq-answer-luxury ul li {
+    margin-bottom: 0.8rem;
+}
+

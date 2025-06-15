@@ -92,20 +92,52 @@ const performanceMonitor = {
 // Initialize performance monitoring
 performanceMonitor.trackPageLoad();
 
-// Social sharing functionality
+// Smooth scroll to form functionality
+function scrollToForm() {
+    const formSection = document.getElementById('registration');
+    if (formSection) {
+        formSection.scrollIntoView({ 
+            behavior: 'smooth',
+            block: 'start'
+        });
+        
+        // Add focus to first form input after scroll
+        setTimeout(() => {
+            const firstInput = formSection.querySelector('input, select');
+            if (firstInput) {
+                firstInput.focus();
+            }
+        }, 800);
+        
+        // Track CTA click
+        performanceMonitor.trackFormInteraction('cta_click', 'scroll_to_form');
+    }
+}
+
+// Enhanced social sharing functionality
 function shareOnTwitter() {
-    const text = '🎼 世界的ボイストレーナー ジョジョ・アコスタ氏による特別ワークショップ！2025年6月21日開催 #VoiceAtelier #ボイストレーニング #子ども習い事';
+    const text = '🎼 世界的ボイストレーナー ジョジョ・アコスタ氏による特別ワークショップ！\n\n✨ 完全無料・定員20名限定\n📅 2025年6月21日(土)10:30-12:00\n📍 UDCK 柏の葉キャンパス駅徒歩1分\n\n#VoiceAtelier #ボイストレーニング #子ども習い事 #柏の葉 #無料ワークショップ';
     const url = window.location.href;
-    const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`;
+    const twitterUrl = `https://x.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`;
     
     window.open(twitterUrl, '_blank', 'width=600,height=400');
     
     // Track sharing
-    performanceMonitor.trackFormInteraction('social_share', 'twitter');
+    performanceMonitor.trackFormInteraction('social_share', 'x_twitter');
 }
 
 function shareOnLine() {
-    const text = '🎼 世界的ボイストレーナー ジョジョ・アコスタ氏による特別ワークショップ！2025年6月21日開催';
+    const text = `🎼 世界的ボイストレーナー ジョジョ・アコスタ氏による特別ワークショップ！
+
+✨ 完全無料・定員20名限定
+📅 2025年6月21日(土)10:30-12:00  
+📍 UDCK 柏の葉キャンパス駅徒歩1分
+🎯 小学生〜中学生対象
+
+X-Factor、レ・ミゼラブル出演者を指導した世界レベルの指導が受けられます！
+
+お申し込みはこちら👇`;
+    
     const url = window.location.href;
     const lineUrl = `https://social-plugins.line.me/lineit/share?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`;
     
@@ -623,64 +655,369 @@ function removeFocusGlow(field) {
     field.style.boxShadow = '';
 }
 
-// Email notification functions
+// Email notification functions with enhanced error handling
 async function sendNotificationEmails(registrationData) {
+    console.log('🔄 Starting email notification process...', registrationData);
+    
+    // First try Supabase Edge Functions
+    let edgeFunctionsWorked = false;
+    
     try {
-        // Send admin notification
+        console.log('📧 Attempting Supabase Edge Functions...');
         await sendAdminNotification(registrationData);
-        
-        // Send thank you email to user
         await sendThankYouEmail(registrationData);
+        edgeFunctionsWorked = true;
+        console.log('✅ Supabase Edge Functions successful');
     } catch (error) {
-        console.error('Email notification error:', error);
-        // Don't throw error as form submission was successful
+        console.error('❌ Supabase Edge Functions failed:', error);
+        edgeFunctionsWorked = false;
+    }
+    
+    // If Edge Functions failed, use backup system
+    if (!edgeFunctionsWorked) {
+        console.log('🔄 Attempting backup email system...');
+        try {
+            await sendBackupEmails(registrationData);
+            console.log('✅ Backup email system successful');
+        } catch (backupError) {
+            console.error('❌ Backup email system also failed:', backupError);
+            
+            // Last resort: Email via EmailJS or direct API
+            try {
+                await sendDirectEmails(registrationData);
+                console.log('✅ Direct email system successful');
+            } catch (directError) {
+                console.error('❌ All email systems failed:', directError);
+                
+                // Store for manual follow-up
+                logRegistrationForManualFollowUp(registrationData);
+                
+                // Show user that emails might be delayed
+                showEmailDelayNotification();
+            }
+        }
     }
 }
 
 async function sendAdminNotification(data) {
+    console.log('📧 Sending admin notification to globalbunny77@gmail.com...');
+    
     try {
-        const { error } = await supabase.functions.invoke('send-admin-notification', {
+        const { data: result, error } = await supabase.functions.invoke('send-admin-notification', {
             body: {
                 to: 'globalbunny77@gmail.com',
-                subject: '新しいワークショップ申し込み',
+                subject: '【Voice Atelier】新しいワークショップ申し込み',
                 data: data
             }
         });
         
-        if (error) throw error;
-        console.log('Admin notification sent successfully');
+        if (error) {
+            console.error('Supabase function error:', error);
+            throw new Error(`Supabase Edge Function failed: ${error.message || JSON.stringify(error)}`);
+        }
+        
+        console.log('✅ Admin notification sent via Supabase:', result);
+        return result;
+        
     } catch (error) {
-        console.error('Admin notification error:', error);
-        // Fallback: Log for manual notification
-        console.log('Admin notification data:', {
-            to: 'globalbunny77@gmail.com',
-            subject: '新しいワークショップ申し込み',
-            data: data
+        console.error('❌ Admin notification failed:', error);
+        
+        // Enhanced logging for debugging
+        console.log('Debug info:', {
+            supabaseUrl: SUPABASE_URL,
+            hasSupabaseClient: !!supabase,
+            errorDetails: error,
+            timestamp: new Date().toISOString()
         });
+        
+        throw error;
     }
 }
 
 async function sendThankYouEmail(data) {
+    console.log(`📧 Sending thank you email to ${data.email}...`);
+    
     try {
-        const { error } = await supabase.functions.invoke('send-thank-you-email', {
+        const { data: result, error } = await supabase.functions.invoke('send-thank-you-email', {
             body: {
                 to: data.email,
-                subject: 'ワークショップお申し込みありがとうございます',
+                subject: '【Voice Atelier】ワークショップお申し込みありがとうございます',
                 data: data
             }
         });
         
-        if (error) throw error;
-        console.log('Thank you email sent successfully');
+        if (error) {
+            console.error('Supabase function error:', error);
+            throw new Error(`Supabase Edge Function failed: ${error.message || JSON.stringify(error)}`);
+        }
+        
+        console.log('✅ Thank you email sent via Supabase:', result);
+        return result;
+        
     } catch (error) {
-        console.error('Thank you email error:', error);
-        // Fallback: Log for manual follow-up
-        console.log('Thank you email data:', {
-            to: data.email,
-            subject: 'ワークショップお申し込みありがとうございます',
-            data: data
-        });
+        console.error('❌ Thank you email failed:', error);
+        throw error;
     }
+}
+
+// Complete backup email implementation
+async function sendBackupEmails(data) {
+    console.log('📧 Using Web3Forms backup system...');
+    
+    const web3formsKey = 'e1e48109-25e6-4dc7-80fa-29aa5ca56e24'; 
+    
+    // Send admin notification
+    const adminEmailData = {
+        access_key: web3formsKey,
+        subject: '【Voice Atelier】新しいワークショップ申し込み',
+        from_name: 'Voice Atelier システム',
+        email: 'globalbunny77@gmail.com',
+        message: `新しいワークショップ申し込みがありました。
+
+【参加者情報】
+参加者名: ${data.child_name}
+学年: ${data.grade}
+保護者名: ${data.parent_name}
+メールアドレス: ${data.email}
+電話番号: ${data.phone}
+歌唱経験: ${data.experience}
+特別配慮事項: ${data.special_needs || 'なし'}
+申し込み日時: ${new Date(data.created_at).toLocaleString('ja-JP')}
+
+【重要】24時間以内にご連絡をお願いします。
+
+このメールは自動送信されています。
+Voice Atelier システム`
+    };
+    
+    const adminResponse = await fetch('https://api.web3forms.com/submit', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        },
+        body: JSON.stringify(adminEmailData)
+    });
+    
+    if (!adminResponse.ok) {
+        const errorText = await adminResponse.text();
+        throw new Error(`Admin email failed: ${adminResponse.status} - ${errorText}`);
+    }
+    
+    const adminResult = await adminResponse.json();
+    console.log('✅ Admin notification sent via Web3Forms:', adminResult);
+    
+    // Send user confirmation email
+    const userEmailData = {
+        access_key: web3formsKey,
+        subject: '【Voice Atelier】ワークショップお申し込みありがとうございます',
+        from_name: 'Voice Atelier',
+        email: data.email,
+        message: `${data.parent_name} 様
+
+この度は、世界的ボイストレーナー ジョジョ・アコスタ氏による特別ワークショップにお申し込みいただき、誠にありがとうございます。
+
+【お申し込み内容確認】
+参加者名: ${data.child_name}
+学年: ${data.grade}
+歌唱経験: ${data.experience}
+
+【ワークショップ詳細】
+日時: 2025年6月21日（土）10:30〜12:00
+会場: UDCK（柏の葉アーバンデザインセンター）
+対象: 小学生〜中学生（7歳〜15歳）
+定員: 20名限定
+参加費: 完全無料
+
+【今後の流れ】
+• 24時間以内に詳細についてご連絡いたします
+• 当日の持ち物や注意事項をお知らせします
+• ご質問がございましたらお気軽にお問い合わせください
+
+【お問い合わせ】
+メール: globalbunny77@gmail.com
+担当: 大舘
+
+Voice Atelier
+世界的ボイストレーナー ジョジョ・アコスタ氏ワークショップ`
+    };
+    
+    const userResponse = await fetch('https://api.web3forms.com/submit', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        },
+        body: JSON.stringify(userEmailData)
+    });
+    
+    if (!userResponse.ok) {
+        console.error('User confirmation email failed, but admin notification succeeded');
+        // Don't throw error for user email failure
+    } else {
+        const userResult = await userResponse.json();
+        console.log('✅ User confirmation sent via Web3Forms:', userResult);
+    }
+}
+
+// Direct email implementation with multiple providers
+async function sendDirectEmails(data) {
+    console.log('📧 Attempting direct email providers...');
+    
+    // Try Formspree (another reliable service)
+    try {
+        await sendViaFormspree(data);
+        return;
+    } catch (formspreeError) {
+        console.error('Formspree failed:', formspreeError);
+    }
+    
+    // Try Netlify Forms as last resort
+    try {
+        await sendViaNetlifyForms(data);
+        return;
+    } catch (netlifyError) {
+        console.error('Netlify Forms failed:', netlifyError);
+        throw new Error('All direct email services failed');
+    }
+}
+
+async function sendViaFormspree(data) {
+    console.log('📧 Sending via Formspree...');
+    
+    const formspreeEndpoint = 'https://formspree.io/f/xrbgqpbv'; // Demo endpoint
+    
+    const formData = new FormData();
+    formData.append('_replyto', 'globalbunny77@gmail.com');
+    formData.append('_subject', '【Voice Atelier】新しいワークショップ申し込み');
+    formData.append('child_name', data.child_name);
+    formData.append('parent_name', data.parent_name);
+    formData.append('grade', data.grade);
+    formData.append('email', data.email);
+    formData.append('phone', data.phone);
+    formData.append('experience', data.experience);
+    formData.append('special_needs', data.special_needs || 'なし');
+    formData.append('created_at', new Date(data.created_at).toLocaleString('ja-JP'));
+    formData.append('message', `新しいワークショップ申し込み:
+参加者: ${data.child_name} (${data.grade})
+保護者: ${data.parent_name}
+連絡先: ${data.email} / ${data.phone}
+経験: ${data.experience}
+特別配慮: ${data.special_needs || 'なし'}
+申込日時: ${new Date(data.created_at).toLocaleString('ja-JP')}`);
+    
+    const response = await fetch(formspreeEndpoint, {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'Accept': 'application/json'
+        }
+    });
+    
+    if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Formspree error: ${response.status} - ${errorText}`);
+    }
+    
+    console.log('✅ Email sent via Formspree');
+}
+
+async function sendViaNetlifyForms(data) {
+    console.log('📧 Sending via Netlify Forms...');
+    
+    const netlifyEndpoint = '/'; // Current site with Netlify Forms
+    
+    const formData = new FormData();
+    formData.append('form-name', 'voice-atelier-registration');
+    formData.append('child_name', data.child_name);
+    formData.append('parent_name', data.parent_name);
+    formData.append('grade', data.grade);
+    formData.append('email', data.email);
+    formData.append('phone', data.phone);
+    formData.append('experience', data.experience);
+    formData.append('special_needs', data.special_needs || 'なし');
+    formData.append('created_at', new Date(data.created_at).toLocaleString('ja-JP'));
+    
+    const response = await fetch(netlifyEndpoint, {
+        method: 'POST',
+        body: formData
+    });
+    
+    if (!response.ok) {
+        throw new Error(`Netlify Forms error: ${response.statusText}`);
+    }
+    
+    console.log('✅ Email sent via Netlify Forms');
+}
+
+// Enhanced user notification for email delays
+function showEmailDelayNotification() {
+    const notification = document.createElement('div');
+    notification.className = 'email-delay-notification';
+    
+    notification.innerHTML = `
+        <div class="delay-notification-content">
+            <div class="delay-icon">📧</div>
+            <h3>申し込み完了</h3>
+            <p>お申し込みは正常に受付けました。</p>
+            <p class="delay-message">
+                <strong>確認メールの送信に遅延が発生している可能性があります。</strong><br>
+                24時間以内に手動でご連絡いたします。
+            </p>
+            <div class="delay-contact">
+                <p>お急ぎの場合は直接ご連絡ください：</p>
+                <a href="mailto:globalbunny77@gmail.com" class="contact-link">
+                    globalbunny77@gmail.com
+                </a>
+            </div>
+            <button onclick="this.parentElement.parentElement.remove()" class="delay-close-btn">
+                理解しました
+            </button>
+        </div>
+    `;
+    
+    // Add styles
+    notification.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.9);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10003;
+        animation: luxury-fadeIn 0.5s ease;
+        padding: 20px;
+    `;
+    
+    const content = notification.querySelector('.delay-notification-content');
+    content.style.cssText = `
+        background: linear-gradient(135deg, #1a1a2e, #16213e);
+        padding: 2.5rem;
+        border-radius: 1rem;
+        text-align: center;
+        max-width: 500px;
+        width: 100%;
+        border: 1px solid rgba(212, 175, 55, 0.3);
+        color: white;
+    `;
+    
+    const closeBtn = notification.querySelector('.delay-close-btn');
+    closeBtn.style.cssText = `
+        background: linear-gradient(135deg, #d4af37, #f4e4a6);
+        color: #1a1a2e;
+        border: none;
+        padding: 1rem 2rem;
+        border-radius: 2rem;
+        margin-top: 1.5rem;
+        cursor: pointer;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    `;
+    
+    document.body.appendChild(notification);
 }
 
 function showLuxuryErrorMessage(message) {

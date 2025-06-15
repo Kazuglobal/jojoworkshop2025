@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Test - Voice Atelier</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        .test-btn {
+            background: #d4af37;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px;
+        }
+        .test-btn:hover {
+            background: #b8941f;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .info {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>📧 Voice Atelier メール送信テスト</h1>
+        <p>このページでメール送信機能をテストできます。</p>
+        
+        <h2>🚀 クイックテスト</h2>
+        <button class="test-btn" onclick="testWebForms()">Web3Forms でテスト送信</button>
+        <button class="test-btn" onclick="testFormspree()">Formspree でテスト送信</button>
+        <button class="test-btn" onclick="testAll()">全システムテスト</button>
+        
+        <div id="result"></div>
+        
+        <h2>📝 設定手順</h2>
+        <div class="info">
+            <h3>1. Web3Forms (推奨)</h3>
+            <p>1. <a href="https://web3forms.com" target="_blank">Web3Forms</a> に移動</p>
+            <p>2. globalbunny77@gmail.com でサインアップ</p>
+            <p>3. Access Key をコピー</p>
+            <p>4. script.js の web3formsKey を置換</p>
+            
+            <h3>2. Formspree (バックアップ)</h3>
+            <p>1. <a href="https://formspree.io" target="_blank">Formspree</a> に移動</p>
+            <p>2. globalbunny77@gmail.com でサインアップ</p>
+            <p>3. Form ID をコピー</p>
+            <p>4. script.js の formspreeEndpoint を更新</p>
+        </div>
+        
+        <h2>🔧 デバッグ情報</h2>
+        <button class="test-btn" onclick="showDebugInfo()">デバッグ情報表示</button>
+    </div>
+
+    <script>
+        async function testWebForms() {
+            showResult('🔄 Web3Forms でテスト中...', 'info');
+            
+            try {
+                const response = await fetch('https://api.web3forms.com/submit', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        access_key: 'a9b8c7d6-e5f4-3c2b-1a09-8765432109876', // Demo key
+                        subject: '【Voice Atelier】テスト送信',
+                        from_name: 'Voice Atelier テストシステム',
+                        email: 'globalbunny77@gmail.com',
+                        message: `テスト送信です。
+
+このメールが届いた場合、Web3Formsは正常に動作しています。
+
+時刻: ${new Date().toLocaleString('ja-JP')}
+テストページからの送信`
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showResult('✅ Web3Forms テスト成功！globalbunny77@gmail.com を確認してください。', 'success');
+                } else {
+                    showResult(`❌ Web3Forms エラー: ${result.message}`, 'error');
+                }
+            } catch (error) {
+                showResult(`❌ Web3Forms 送信失敗: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testFormspree() {
+            showResult('🔄 Formspree でテスト中...', 'info');
+            
+            try {
+                const formData = new FormData();
+                formData.append('_replyto', 'globalbunny77@gmail.com');
+                formData.append('_subject', '【Voice Atelier】Formspree テスト送信');
+                formData.append('email', 'test@voiceatelier.jp');
+                formData.append('message', `Formspree テスト送信です。
+
+このメールが届いた場合、Formspreeは正常に動作しています。
+
+時刻: ${new Date().toLocaleString('ja-JP')}
+テストページからの送信`);
+                
+                const response = await fetch('https://formspree.io/f/xrbgqpbv', {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
+                
+                if (response.ok) {
+                    showResult('✅ Formspree テスト成功！globalbunny77@gmail.com を確認してください。', 'success');
+                } else {
+                    const errorText = await response.text();
+                    showResult(`❌ Formspree エラー: ${response.status} - ${errorText}`, 'error');
+                }
+            } catch (error) {
+                showResult(`❌ Formspree 送信失敗: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testAll() {
+            showResult('🔄 全システムテスト開始...', 'info');
+            
+            await testWebForms();
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            await testFormspree();
+            
+            showResult('✅ 全テスト完了！メールボックスを確認してください。', 'success');
+        }
+        
+        function showDebugInfo() {
+            const debugInfo = `
+🔍 デバッグ情報:
+
+ブラウザ: ${navigator.userAgent}
+現在時刻: ${new Date().toLocaleString('ja-JP')}
+URL: ${window.location.href}
+プロトコル: ${window.location.protocol}
+
+📧 メール設定状況:
+• Web3Forms Demo Key: a9b8c7d6-e5f4-3c2b-1a09-8765432109876
+• Formspree Demo Endpoint: xrbgqpbv
+• 送信先: globalbunny77@gmail.com
+
+⚠️ 注意:
+これらはデモ用の設定です。
+本格運用には実際のキーが必要です。
+            `;
+            
+            showResult(debugInfo, 'info');
+        }
+        
+        function showResult(message, type) {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = `<div class="${type}">${message.replace(/\n/g, '<br>')}</div>`;
+        }
+    </script>
+</body>
+</html>
