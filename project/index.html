@@ -784,19 +784,59 @@
     
     <!-- インライン言語切り替えスクリプト（緊急対応） -->
     <script>
-        // 基本的な翻訳データ（最小限）
+        // 基本的な翻訳データ（拡張版）
         const minimalTranslations = {
             ja: {
                 nav_about: "講師紹介",
                 nav_features: "特徴", 
                 nav_program: "プログラム",
-                nav_register: "申込"
+                nav_register: "申込",
+                hero_badge_free: "✨ 完全無料・20名限定 ✨",
+                hero_badge_second: "🎉 第2回開催決定！",
+                hero_title_line1: "自信を持って",
+                hero_title_line2: "大好きな歌を",
+                hero_title_line3: "歌えるようになろう！",
+                hero_subtitle_main: "世界的ボイストレーナー",
+                hero_instructor_name: "ジョジョ・アコスタ氏",
+                hero_workshop_label: "特別ワークショップ",
+                hero_description: "X-Factor、レ・ミゼラブル、アメリカンアイドルに生徒を送り出した世界レベルの指導を、UDCK（柏の葉キャンパス駅）で特別開催。独自の発声法で、子どもたちの歌声を劇的に変える90分間の魔法の体験をお届けします。",
+                hero_detail_date_title: "開催日時",
+                hero_detail_date_text: "2025年6月21日（土）<br>午前10時30分〜12時00分（90分間）",
+                hero_detail_venue_title: "会場・対象",
+                hero_detail_venue_text: "UDCK（柏の葉キャンパス駅）<br>小学生〜中学生対象（7歳〜15歳）",
+                instructor_badge: "世界が認めた講師",
+                instructor_title: "フィリピン発、国際舞台で活躍する生徒を多数輩出",
+                instructor_name: "ジョジョ・アコスタ氏",
+                instructor_title_card: "世界的ボイストレーナー",
+                instructor_origin: "🇵🇭 フィリピン発",
+                features_badge: "8つの特別な魅力",
+                features_title: "世界レベルの指導を無料で体験できる奇跡の機会"
             },
             en: {
                 nav_about: "About Instructor",
                 nav_features: "Features", 
                 nav_program: "Program",
-                nav_register: "Register"
+                nav_register: "Register",
+                hero_badge_free: "✨ Completely Free・Limited to 20 ✨",
+                hero_badge_second: "🎉 2nd Workshop Confirmed!",
+                hero_title_line1: "Sing with",
+                hero_title_line2: "Confidence",
+                hero_title_line3: "Your Favorite Songs!",
+                hero_subtitle_main: "World-Class Voice Trainer",
+                hero_instructor_name: "Mr. JoJo Acosta",
+                hero_workshop_label: "Special Workshop",
+                hero_description: "World-class instruction that has sent students to X-Factor, Les Misérables, and American Idol, specially held at UDCK (Kashiwa-no-ha Campus Station). Experience 90 minutes of magical transformation of children's voices through unique vocal techniques.",
+                hero_detail_date_title: "Date & Time",
+                hero_detail_date_text: "June 21, 2025 (Sat)<br>10:30 AM - 12:00 PM (90 minutes)",
+                hero_detail_venue_title: "Venue & Target",
+                hero_detail_venue_text: "UDCK (Kashiwa-no-ha Campus Station)<br>Elementary to Junior High Students (Ages 7-15)",
+                instructor_badge: "World-Recognized Instructor",
+                instructor_title: "From the Philippines, Training Students for International Stages",
+                instructor_name: "Mr. JoJo Acosta",
+                instructor_title_card: "World-Class Voice Trainer",
+                instructor_origin: "🇵🇭 From Philippines",
+                features_badge: "8 Special Features",
+                features_title: "A Miraculous Opportunity to Experience World-Class Instruction for Free"
             }
         };
         
@@ -806,17 +846,35 @@
         // 緊急用の言語切り替え関数
         window.setLanguage = function(lang) {
             console.log('Inline setLanguage called with:', lang);
+            console.log('Available translations for', lang, ':', minimalTranslations[lang]);
             currentLang = lang;
             document.documentElement.lang = lang;
             localStorage.setItem('language', lang);
             
             // 基本的な要素のみ更新
+            let updatedCount = 0;
             document.querySelectorAll('[data-i18n]').forEach(element => {
                 const key = element.getAttribute('data-i18n');
                 if (minimalTranslations[lang] && minimalTranslations[lang][key]) {
-                    element.textContent = minimalTranslations[lang][key];
+                    // HTMLを含む場合はinnerHTMLを使用
+                    if (minimalTranslations[lang][key].includes('<')) {
+                        element.innerHTML = minimalTranslations[lang][key];
+                    } else {
+                        element.textContent = minimalTranslations[lang][key];
+                    }
+                    updatedCount++;
+                } else {
+                    console.log('Translation not found for key:', key, 'in language:', lang);
                 }
             });
+            console.log('Updated', updatedCount, 'elements for language:', lang);
+            
+            // ページタイトルも更新
+            if (lang === 'en') {
+                document.title = 'World-Class Voice Trainer JoJo Acosta Workshop | Voice Atelier';
+            } else {
+                document.title = '世界的ボイストレーナー ジョジョ・アコスタ氏ワークショップ | Voice Atelier';
+            }
             
             // ボタンの状態更新
             document.querySelectorAll('.lang-btn, .mobile-lang-btn').forEach(btn => {
