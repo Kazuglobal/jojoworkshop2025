@@ -778,6 +778,50 @@
 
     <!-- Supabase JavaScript SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.min.js"></script>
+    
+    <!-- Critical inline functions for deployed environment -->
+    <script>
+        // Ensure scrollToForm function is always available
+        function scrollToForm() {
+            console.log('📍 ScrollToForm called');
+            const formSection = document.getElementById('register');
+            if (formSection) {
+                formSection.scrollIntoView({ 
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+                
+                // Add focus to first form input after scroll
+                setTimeout(() => {
+                    const firstInput = formSection.querySelector('input, select');
+                    if (firstInput) {
+                        firstInput.focus();
+                    }
+                }, 800);
+                
+                console.log('✅ Scrolled to form successfully');
+            } else {
+                console.error('❌ Form section not found');
+            }
+        }
+        
+        // Make function globally available
+        window.scrollToForm = scrollToForm;
+        
+        // Debug function for deployed environment
+        window.debugFormLink = function() {
+            const buttons = document.querySelectorAll('[onclick*="scrollToForm"]');
+            const formSection = document.getElementById('register');
+            console.log('Debug Form Link:', {
+                buttonsFound: buttons.length,
+                formSectionExists: !!formSection,
+                scrollToFormExists: typeof scrollToForm === 'function',
+                environment: window.location.hostname
+            });
+            return { buttons: buttons.length, formExists: !!formSection };
+        };
+    </script>
+    
     <script type="module" src="translations.js"></script>
     <script type="module" src="language-switcher.js"></script>
     <script type="module" src="script.js"></script>

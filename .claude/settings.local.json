@@ -5,7 +5,10 @@
       "WebFetch(domain:globalbunny.jp)",
       "Bash(mkdir:*)",
       "Bash(chmod:*)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "Bash(python:*)",
+      "Bash(pkill:*)",
+      "Bash(node:*)"
     ],
     "deny": []
   }

@@ -1,11 +1,48 @@
 // Luxury JavaScript for Voice Workshop Landing Page - Perfect Responsive
 
+// Environment Detection
+const isLocalEnvironment = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.hostname.includes('192.168');
+const isDeployedEnvironment = !isLocalEnvironment;
+
+console.log(`🌍 Environment: ${isLocalEnvironment ? 'LOCAL' : 'DEPLOYED'} (${window.location.hostname})`);
+
 // Supabase Configuration
 const SUPABASE_URL = 'https://dgclcoaxalatwvyjeeld.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRnY2xjb2F4YWxhdHd2eWplZWxkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk4NzczNDIsImV4cCI6MjA2NTQ1MzM0Mn0.wSl0mpD_34p3HFWow-tqA4HjbCRWT0ObKs-u_b4-ioI';
 
-// Initialize Supabase client
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+// Global variables for Supabase client
+let supabase = null;
+let supabaseReady = false;
+
+// Wait for Supabase SDK to load before initializing
+async function initializeSupabase() {
+    console.log('📦 Initializing Supabase...');
+    
+    // Wait for window.supabase to be available
+    let attempts = 0;
+    const maxAttempts = 50; // 5 seconds maximum wait
+    
+    while (!window.supabase && attempts < maxAttempts) {
+        console.log(`⏳ Waiting for Supabase SDK... (${attempts + 1}/${maxAttempts})`);
+        await new Promise(resolve => setTimeout(resolve, 100));
+        attempts++;
+    }
+    
+    if (window.supabase) {
+        try {
+            supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            supabaseReady = true;
+            console.log('✅ Supabase initialized successfully');
+            return true;
+        } catch (error) {
+            console.error('❌ Supabase initialization failed:', error);
+            return false;
+        }
+    } else {
+        console.error('❌ Supabase SDK not loaded after maximum wait time');
+        return false;
+    }
+}
 
 // Performance monitoring
 const performanceMonitor = {
@@ -459,6 +496,15 @@ async function handleLuxuryFormSubmit(e) {
         return;
     }
     
+    // Ensure Supabase is initialized before form submission
+    if (!supabaseReady) {
+        console.log('⏳ Supabase not ready, initializing...');
+        const initSuccess = await initializeSupabase();
+        if (!initSuccess) {
+            console.warn('⚠️ Supabase initialization failed, proceeding with backup email system');
+        }
+    }
+    
     // Luxury loading state with particle effects for ALL devices
     submitButton.disabled = true;
     const sendingText = (typeof t === 'function') ? t('form_sending') : '送信中...';
@@ -495,14 +541,40 @@ async function handleLuxuryFormSubmit(e) {
         // Track form submission attempt
         performanceMonitor.trackFormInteraction('submit_attempt');
         
-        // Submit to Supabase
-        const { data, error } = await supabase
-            .from('registrations')
-            .insert([registrationData])
-            .select();
+        // Submit to Supabase (with availability check)
+        let dataStorageSuccess = false;
         
-        if (error) {
-            throw error;
+        if (supabaseReady && supabase) {
+            try {
+                const { data, error } = await supabase
+                    .from('registrations')
+                    .insert([registrationData])
+                    .select();
+                
+                if (error) {
+                    throw error;
+                }
+                
+                dataStorageSuccess = true;
+                console.log('✅ Data stored in Supabase successfully');
+            } catch (supabaseError) {
+                console.error('❌ Supabase storage failed:', supabaseError);
+                // Continue with email sending even if storage fails
+                // In production, you might want to use alternative storage
+                logRegistrationForManualFollowUp(registrationData, {
+                    adminEmail: false,
+                    userEmail: false,
+                    method: 'none',
+                    errors: ['Supabase storage failed: ' + supabaseError.message]
+                });
+            }
+        } else {
+            console.warn('⚠️ Supabase not available, skipping database storage');
+            // Store locally for manual retrieval
+            const localRegistrations = JSON.parse(localStorage.getItem('offline_registrations') || '[]');
+            localRegistrations.push(registrationData);
+            localStorage.setItem('offline_registrations', JSON.stringify(localRegistrations));
+            console.log('💾 Registration stored locally for manual retrieval');
         }
         
         // Send notification emails (non-blocking)
@@ -994,6 +1066,127 @@ ${data.special_needs ? `⚠️ 配慮事項: ${data.special_needs}` : ''}
     }
 }
 
+// Formsubmit user confirmation email (dedicated function)
+async function sendUserConfirmationViaFormsubmit(data, isEnglish = false) {
+    console.log('📧 Sending user confirmation via Formsubmit...');
+    
+    // Always use Japanese for user confirmation
+    isEnglish = false;
+    
+    const detailedMessage = `${data.parent_name} 様
+
+✨ この度は、世界的ボイストレーナー ジョジョ・アコスタ氏による特別ワークショップにお申し込みいただき、誠にありがとうございます！
+
+【✅ お申し込み確認完了】
+🧒 参加者名: ${data.child_name}
+📚 学年: ${data.grade}
+🎵 歌唱経験: ${data.experience}
+${data.special_needs ? `⚠️ 配慮事項: ${data.special_needs}` : ''}
+
+【📅 ワークショップ詳細】
+🗓️ 開催日時: 2025年6月21日（土）10:30〜12:00（90分間）
+📍 会場: UDCK（柏の葉アーバンデザインセンター）
+　　　  - つくばエクスプレス「柏の葉キャンパス駅」徒歩1分
+🎯 対象: 小学生〜中学生（7歳〜15歳）
+👥 定員: 20名限定
+💝 参加費: 完全無料
+🌐 使用言語: 英語楽曲（日本語サポートあり）
+
+【🎤 講師プロフィール】
+ジョジョ・アコスタ氏（フィリピン出身）
+「X-Factor」「レ・ミゼラブル」「アメリカン・アイドル」の出演者を指導した世界的ボイストレーナー
+
+【📧 お問い合わせについて】
+• ご質問がございましたらお気軽にお問い合わせください
+
+【📞 お問い合わせ】
+📧 メール: globalbunny77@gmail.com
+👤 担当: 大舘
+
+世界レベルの指導をお子様に体験していただけることを、スタッフ一同心より楽しみにしております！
+
+──────────────────
+🎼 Voice Atelier
+世界的ボイストレーナー ジョジョ・アコスタ氏ワークショップ
+──────────────────
+
+※このメールは自動送信されています
+申し込み日時: ${new Date(data.created_at).toLocaleString('ja-JP')}`;
+
+    let emailSent = false;
+    let lastError = '';
+    
+    // Method 1: Try Formsubmit (primary)
+    try {
+        console.log(`📧 Sending to user: ${data.email}`);
+        const formsubmitResponse = await fetch(`https://formsubmit.co/ajax/${data.email}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+                name: 'Voice Atelier',
+                email: 'globalbunny77@gmail.com',
+                subject: '【Voice Atelier】ワークショップお申し込み確認✨',
+                message: detailedMessage,
+                _captcha: 'false',
+                _template: 'table'
+            })
+        });
+        
+        if (formsubmitResponse.ok) {
+            const result = await formsubmitResponse.json();
+            console.log('✅ User confirmation sent via Formsubmit:', result);
+            emailSent = true;
+        } else {
+            const errorText = await formsubmitResponse.text();
+            lastError = `Formsubmit failed: ${formsubmitResponse.status} - ${errorText}`;
+            console.error(lastError);
+        }
+    } catch (error) {
+        lastError = `Formsubmit error: ${error.message}`;
+        console.error(lastError);
+    }
+    
+    // Method 2: Try alternative Formsubmit endpoint
+    if (!emailSent) {
+        try {
+            console.log('📧 Trying alternative Formsubmit method...');
+            const altResponse = await fetch('https://formsubmit.co/ajax/globalbunny77@gmail.com', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({
+                    name: data.parent_name,
+                    email: data.email,
+                    subject: '【Voice Atelier】ワークショップお申し込み確認✨',
+                    message: detailedMessage,
+                    _cc: data.email, // Copy to user
+                    _captcha: 'false'
+                })
+            });
+            
+            if (altResponse.ok) {
+                console.log('✅ User confirmation sent via alternative method');
+                emailSent = true;
+            } else {
+                lastError = `Alternative method failed: ${altResponse.status}`;
+                console.error(lastError);
+            }
+        } catch (error) {
+            lastError = `Alternative method error: ${error.message}`;
+            console.error(lastError);
+        }
+    }
+    
+    if (!emailSent) {
+        throw new Error(`All Formsubmit methods failed: ${lastError}`);
+    }
+}
+
 // EmailJS backup for user confirmation emails
 async function sendUserConfirmationViaEmailJS(data, isEnglish) {
     console.log('📧 Sending user confirmation via EmailJS...');
@@ -1088,137 +1281,6 @@ ${data.special_needs ? `⚠️ 配慮事項: ${data.special_needs}` : ''}
     console.log('✅ User confirmation sent via Formsubmit');
 }
 
-// Formsubmit for user confirmation emails (direct to user)
-async function sendUserConfirmationViaFormsubmit(data, isEnglish) {
-    console.log(`📧 Sending user confirmation via Formsubmit to ${data.email}...`);
-    
-    // シンプルな日本語申込完了メール
-    const confirmationMessage = `${data.parent_name} 様
-
-お申し込みありがとうございます。
-
-下記の内容でワークショップのお申し込みを承りました。
-
-■ 参加者名: ${data.child_name}
-■ 学年: ${data.grade}
-■ 歌唱経験: ${data.experience}
-${data.special_needs ? `■ その他: ${data.special_needs}` : ''}
-
-■ 開催日時: 2025年6月21日（土）10:30〜12:00
-■ 会場: UDCK（柏の葉キャンパス駅）
-■ 講師: ジョジョ・アコスタ氏（詳細: https://jojoacosta.com/）
-■ 参加費: 無料
-
-お問い合わせ先:
-メール: globalbunny77@gmail.com
-担当: 大舘
-
-当日お会いできることを楽しみにしております。
-
-Voice Atelier`;
-
-    // Method 1: Try Formsubmit first
-    let emailSent = false;
-    let lastError = null;
-    
-    try {
-        console.log('📧 Trying Formsubmit...');
-        const formsubmitResponse = await fetch(`https://formsubmit.co/ajax/${data.email}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
-            },
-            body: JSON.stringify({
-                name: 'Voice Atelier',
-                email: 'globalbunny77@gmail.com',
-                subject: '【Voice Atelier】お申し込み完了',
-                message: confirmationMessage,
-                _captcha: 'false',
-                _template: 'table'
-            })
-        });
-        
-        if (formsubmitResponse.ok) {
-            const result = await formsubmitResponse.json();
-            console.log('✅ User confirmation sent via Formsubmit:', result);
-            emailSent = true;
-        } else {
-            const errorText = await formsubmitResponse.text();
-            lastError = `Formsubmit failed: ${formsubmitResponse.status} - ${errorText}`;
-            console.error(lastError);
-        }
-    } catch (error) {
-        lastError = `Formsubmit error: ${error.message}`;
-        console.error(lastError);
-    }
-    
-    // Method 2: Try Netlify Forms as backup
-    if (!emailSent) {
-        try {
-            console.log('📧 Trying Netlify Forms backup...');
-            const netlifyResponse = await fetch('/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded'
-                },
-                body: new URLSearchParams({
-                    'form-name': 'user-confirmation',
-                    'email': data.email,
-                    'subject': '【Voice Atelier】お申し込み完了',
-                    'message': confirmationMessage
-                }).toString()
-            });
-            
-            if (netlifyResponse.ok) {
-                console.log('✅ User confirmation sent via Netlify Forms');
-                emailSent = true;
-            } else {
-                lastError = `Netlify Forms failed: ${netlifyResponse.status}`;
-                console.error(lastError);
-            }
-        } catch (error) {
-            lastError = `Netlify Forms error: ${error.message}`;
-            console.error(lastError);
-        }
-    }
-    
-    // Method 3: Try Getform.io as final backup
-    if (!emailSent) {
-        try {
-            console.log('📧 Trying Getform.io backup...');
-            const getformResponse = await fetch('https://getform.io/f/bpjjeyqb', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
-                },
-                body: JSON.stringify({
-                    email: data.email,
-                    subject: '【Voice Atelier】お申し込み完了',
-                    message: confirmationMessage,
-                    to: data.email
-                })
-            });
-            
-            if (getformResponse.ok) {
-                console.log('✅ User confirmation sent via Getform.io');
-                emailSent = true;
-            } else {
-                lastError = `Getform.io failed: ${getformResponse.status}`;
-                console.error(lastError);
-            }
-        } catch (error) {
-            lastError = `Getform.io error: ${error.message}`;
-            console.error(lastError);
-        }
-    }
-    
-    if (!emailSent) {
-        console.error('❌ All email services failed. Last error:', lastError);
-        throw new Error(`All email services failed: ${lastError}`);
-    }
-}
 
 // Logging functions for email tracking
 function logEmailSuccess(registrationData, emailStatus) {
@@ -1295,13 +1357,6 @@ ${emailStatus.errors.join('\n')}
     }).catch(err => console.error('Emergency notification failed:', err));
 }
 
-function showEmailDelayNotification() {
-    // Show user notification about potential email delay
-    console.log('📧 Showing email delay notification to user');
-    
-    // You could show a toast notification here
-    // For now, just log it
-}
 
 // Debug function to check email logs (for development)
 function checkEmailLogs() {
@@ -1321,6 +1376,106 @@ function checkEmailLogs() {
 
 // Make debug functions available globally
 window.checkEmailLogs = checkEmailLogs;
+
+// Test function for email sending (for development/testing)
+async function testEmailSending() {
+    console.log('🧪 Testing email sending functionality...');
+    
+    const testData = {
+        child_name: 'テスト太郎',
+        grade: '小学3年生',
+        parent_name: 'テスト花子',
+        email: 'test@example.com',
+        phone: '090-1234-5678',
+        experience: '初心者（歌を習ったことがない）',
+        special_needs: 'テスト用の申込みです',
+        created_at: new Date().toISOString()
+    };
+    
+    try {
+        console.log('📧 Testing user confirmation email...');
+        await sendUserConfirmationViaFormsubmit(testData, false);
+        console.log('✅ User confirmation email test PASSED');
+        return { success: true, message: 'Email test passed' };
+    } catch (error) {
+        console.error('❌ User confirmation email test FAILED:', error);
+        return { success: false, message: error.message };
+    }
+}
+
+// Test function for admin email
+async function testAdminEmail() {
+    console.log('🧪 Testing admin email functionality...');
+    
+    const testData = {
+        child_name: 'テスト太郎',
+        grade: '小学3年生',
+        parent_name: 'テスト花子',
+        email: 'test@example.com',
+        phone: '090-1234-5678',
+        experience: '初心者（歌を習ったことがない）',
+        special_needs: 'テスト用の申込みです',
+        created_at: new Date().toISOString()
+    };
+    
+    try {
+        console.log('📧 Testing admin notification email...');
+        await sendBackupEmails(testData);
+        console.log('✅ Admin email test PASSED');
+        return { success: true, message: 'Admin email test passed' };
+    } catch (error) {
+        console.error('❌ Admin email test FAILED:', error);
+        return { success: false, message: error.message };
+    }
+}
+
+// Complete test suite
+async function runCompleteTests() {
+    console.log('🏃‍♂️ Running complete test suite...');
+    
+    const results = {
+        environment: isLocalEnvironment ? 'LOCAL' : 'DEPLOYED',
+        timestamp: new Date().toISOString(),
+        tests: {}
+    };
+    
+    // Test 1: ScrollToForm
+    const formSection = document.getElementById('register');
+    results.tests.scrollToForm = {
+        passed: !!formSection && typeof scrollToForm === 'function',
+        message: formSection ? 'Form section found' : 'Form section missing'
+    };
+    
+    // Test 2: Supabase initialization
+    results.tests.supabase = {
+        passed: !!window.supabase,
+        message: window.supabase ? 'Supabase SDK loaded' : 'Supabase SDK missing'
+    };
+    
+    // Test 3: Email functions
+    results.tests.emailFunctions = {
+        passed: typeof sendUserConfirmationViaFormsubmit === 'function' && typeof sendBackupEmails === 'function',
+        message: 'Email functions availability'
+    };
+    
+    // Test 4: User email (only in test environment)
+    if (window.location.pathname.includes('test.html')) {
+        try {
+            const userEmailResult = await testEmailSending();
+            results.tests.userEmail = userEmailResult;
+        } catch (error) {
+            results.tests.userEmail = { success: false, message: error.message };
+        }
+    }
+    
+    console.log('📊 Test Results:', results);
+    return results;
+}
+
+// Make test functions globally available
+window.testEmailSending = testEmailSending;
+window.testAdminEmail = testAdminEmail;
+window.runCompleteTests = runCompleteTests;
 
 // Debug function to check failed emails
 function checkFailedEmails() {
@@ -2590,6 +2745,55 @@ if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
     document.documentElement.style.setProperty('--transition-luxury', 'none');
     document.documentElement.style.setProperty('--transition-luxury-fast', 'none');
     document.documentElement.style.setProperty('--transition-luxury-slow', 'none');
+}
+
+// Main initialization function
+async function initializeApplication() {
+    console.log('🚀 Initializing Voice Atelier Application...');
+    
+    // Initialize Supabase
+    const supabaseInitialized = await initializeSupabase();
+    
+    // Initialize form event listeners
+    const form = document.getElementById('registrationForm');
+    if (form) {
+        form.addEventListener('submit', handleLuxuryFormSubmit);
+        console.log('✅ Form event listeners attached');
+    }
+    
+    // Initialize other components
+    initializeLuxuryFormPhoneFormatting();
+    initializeLazyLoading();
+    
+    // Environment-specific initialization
+    if (isLocalEnvironment) {
+        console.log('🏠 Local environment detected - Enhanced debugging enabled');
+        // Enable additional local debugging features
+        window.debugSupabase = () => ({ supabaseReady, supabase: !!supabase });
+        window.debugEnvironment = () => ({ 
+            isLocal: isLocalEnvironment, 
+            hostname: window.location.hostname,
+            supabaseReady,
+            hasSupabaseSDK: !!window.supabase
+        });
+    } else {
+        console.log('🌐 Deployed environment detected - Production mode');
+    }
+    
+    // Log initialization summary
+    console.log(`📊 Initialization Complete:
+- Environment: ${isLocalEnvironment ? 'LOCAL' : 'DEPLOYED'}
+- Supabase: ${supabaseInitialized ? '✅' : '❌'}
+- Form: ${form ? '✅' : '❌'}
+- SDK Available: ${!!window.supabase ? '✅' : '❌'}`);
+}
+
+// Initialize when DOM is ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeApplication);
+} else {
+    // DOM already loaded
+    initializeApplication();
 }
 
 console.log('🎵 Perfect Mobile Responsive Luxury Voice Workshop experience initialized! ✨📱');

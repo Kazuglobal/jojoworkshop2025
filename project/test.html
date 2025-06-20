@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voice Atelier - Test Page</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 20px; border: 2px solid #ddd; }
+        .test-button { padding: 10px 20px; margin: 10px; background: #007cba; color: white; border: none; cursor: pointer; }
+        .test-button:hover { background: #005a87; }
+        .test-result { margin: 10px 0; padding: 10px; background: #f0f0f0; border-left: 4px solid #007cba; }
+        .success { border-left-color: #28a745; background: #d4edda; }
+        .error { border-left-color: #dc3545; background: #f8d7da; }
+        #register { margin-top: 40px; padding: 20px; border: 2px solid #28a745; }
+        .form-group { margin: 10px 0; }
+        label { display: block; margin-bottom: 5px; }
+        input, select, textarea { width: 100%; padding: 8px; margin-bottom: 10px; }
+        .submit-btn { background: #28a745; color: white; padding: 12px 24px; border: none; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>🎵 Voice Atelier - Test Page</h1>
+    
+    <div class="test-section">
+        <h2>📍 Test 1: ScrollToForm Function</h2>
+        <button class="test-button" onclick="testScrollFunction()">Test Scroll Function</button>
+        <button class="test-button" onclick="scrollToForm()">Apply Button (Should Scroll)</button>
+        <div id="scroll-test-result" class="test-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>🌍 Test 2: Environment Detection</h2>
+        <button class="test-button" onclick="testEnvironment()">Test Environment Detection</button>
+        <div id="env-test-result" class="test-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>📧 Test 3: Email Functions</h2>
+        <button class="test-button" onclick="testEmailFunctions()">Test Email Functions</button>
+        <div id="email-test-result" class="test-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>🔧 Test 4: Debug Functions</h2>
+        <button class="test-button" onclick="testDebugFunctions()">Test Debug Functions</button>
+        <div id="debug-test-result" class="test-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>📧 Test 5: Email Sending (Live Test)</h2>
+        <button class="test-button" onclick="runEmailTest()">Test User Email</button>
+        <button class="test-button" onclick="runAdminEmailTest()">Test Admin Email</button>
+        <button class="test-button" onclick="runAllTests()">Run All Tests</button>
+        <div id="email-live-test-result" class="test-result"></div>
+    </div>
+
+    <section id="register" class="test-section">
+        <h2>📝 Test Form (Target Section)</h2>
+        <form id="registrationForm">
+            <div class="form-group">
+                <label>参加者のお名前 *</label>
+                <input type="text" name="childName" value="テスト太郎" required>
+            </div>
+            
+            <div class="form-group">
+                <label>学年 *</label>
+                <select name="grade" required>
+                    <option value="小学3年生">小学3年生</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label>保護者のお名前 *</label>
+                <input type="text" name="parentName" value="テスト花子" required>
+            </div>
+            
+            <div class="form-group">
+                <label>メールアドレス *</label>
+                <input type="email" name="email" value="test@example.com" required>
+            </div>
+            
+            <div class="form-group">
+                <label>電話番号 *</label>
+                <input type="tel" name="phone" value="090-1234-5678" required>
+            </div>
+            
+            <div class="form-group">
+                <label>歌唱経験 *</label>
+                <select name="experience" required>
+                    <option value="初心者（歌を習ったことがない）">初心者</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label>その他</label>
+                <textarea name="specialNeeds">テスト用の申込みです</textarea>
+            </div>
+            
+            <button type="submit" class="submit-btn form-submit-luxury">
+                <span class="btn-text">申込みを送信</span>
+            </button>
+        </form>
+        
+        <div id="form-test-result" class="test-result"></div>
+    </section>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.min.js"></script>
+    
+    <script>
+        // Critical inline functions for testing
+        function scrollToForm() {
+            console.log('📍 ScrollToForm called');
+            const formSection = document.getElementById('register');
+            if (formSection) {
+                formSection.scrollIntoView({ 
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+                console.log('✅ Scrolled to form successfully');
+                return true;
+            } else {
+                console.error('❌ Form section not found');
+                return false;
+            }
+        }
+        
+        // Test Functions
+        function testScrollFunction() {
+            const result = document.getElementById('scroll-test-result');
+            const formSection = document.getElementById('register');
+            
+            if (formSection && typeof scrollToForm === 'function') {
+                result.innerHTML = '✅ ScrollToForm function exists and form section found';
+                result.className = 'test-result success';
+            } else {
+                result.innerHTML = '❌ ScrollToForm function or form section missing';
+                result.className = 'test-result error';
+            }
+        }
+        
+        function testEnvironment() {
+            const result = document.getElementById('env-test-result');
+            const hostname = window.location.hostname;
+            const isLocal = hostname === 'localhost' || hostname === '127.0.0.1' || hostname.includes('192.168');
+            
+            result.innerHTML = `Environment: ${isLocal ? 'LOCAL' : 'DEPLOYED'} (${hostname})`;
+            result.className = 'test-result success';
+        }
+        
+        function testEmailFunctions() {
+            const result = document.getElementById('email-test-result');
+            let tests = [];
+            
+            // Check if functions exist
+            tests.push(`sendUserConfirmationViaFormsubmit: ${typeof sendUserConfirmationViaFormsubmit === 'function' ? '✅' : '❌'}`);
+            tests.push(`sendBackupEmails: ${typeof sendBackupEmails === 'function' ? '✅' : '❌'}`);
+            tests.push(`logEmailSuccess: ${typeof logEmailSuccess === 'function' ? '✅' : '❌'}`);
+            
+            result.innerHTML = tests.join('<br>');
+            result.className = 'test-result';
+        }
+        
+        function testDebugFunctions() {
+            const result = document.getElementById('debug-test-result');
+            let tests = [];
+            
+            // Check debug functions
+            tests.push(`checkEmailLogs: ${typeof checkEmailLogs === 'function' ? '✅' : '❌'}`);
+            tests.push(`debugFormLink: ${typeof debugFormLink === 'function' ? '✅' : '❌'}`);
+            tests.push(`debugEnvironment: ${typeof debugEnvironment === 'function' ? '✅' : '❌'}`);
+            
+            result.innerHTML = tests.join('<br>');
+            result.className = 'test-result';
+        }
+        
+        async function runEmailTest() {
+            const result = document.getElementById('email-live-test-result');
+            result.innerHTML = '⏳ Testing user email sending...';
+            result.className = 'test-result';
+            
+            try {
+                if (typeof testEmailSending === 'function') {
+                    const emailResult = await testEmailSending();
+                    result.innerHTML = `📧 User Email Test: ${emailResult.success ? '✅ PASSED' : '❌ FAILED'}<br>Message: ${emailResult.message}`;
+                    result.className = emailResult.success ? 'test-result success' : 'test-result error';
+                } else {
+                    result.innerHTML = '❌ testEmailSending function not available';
+                    result.className = 'test-result error';
+                }
+            } catch (error) {
+                result.innerHTML = `❌ Email test failed: ${error.message}`;
+                result.className = 'test-result error';
+            }
+        }
+        
+        async function runAdminEmailTest() {
+            const result = document.getElementById('email-live-test-result');
+            result.innerHTML = '⏳ Testing admin email sending...';
+            result.className = 'test-result';
+            
+            try {
+                if (typeof testAdminEmail === 'function') {
+                    const adminResult = await testAdminEmail();
+                    result.innerHTML = `📧 Admin Email Test: ${adminResult.success ? '✅ PASSED' : '❌ FAILED'}<br>Message: ${adminResult.message}`;
+                    result.className = adminResult.success ? 'test-result success' : 'test-result error';
+                } else {
+                    result.innerHTML = '❌ testAdminEmail function not available';
+                    result.className = 'test-result error';
+                }
+            } catch (error) {
+                result.innerHTML = `❌ Admin email test failed: ${error.message}`;
+                result.className = 'test-result error';
+            }
+        }
+        
+        async function runAllTests() {
+            const result = document.getElementById('email-live-test-result');
+            result.innerHTML = '⏳ Running complete test suite...';
+            result.className = 'test-result';
+            
+            try {
+                if (typeof runCompleteTests === 'function') {
+                    const testResults = await runCompleteTests();
+                    
+                    let html = `<h3>Complete Test Results (${testResults.environment})</h3>`;
+                    for (const [testName, testResult] of Object.entries(testResults.tests)) {
+                        const status = testResult.passed || testResult.success ? '✅ PASSED' : '❌ FAILED';
+                        const message = testResult.message || 'No message';
+                        html += `<div><strong>${testName}:</strong> ${status} - ${message}</div>`;
+                    }
+                    
+                    result.innerHTML = html;
+                    result.className = 'test-result success';
+                } else {
+                    result.innerHTML = '❌ runCompleteTests function not available';
+                    result.className = 'test-result error';
+                }
+            } catch (error) {
+                result.innerHTML = `❌ Complete test failed: ${error.message}`;
+                result.className = 'test-result error';
+            }
+        }
+        
+        // Auto-run tests when page loads
+        window.addEventListener('DOMContentLoaded', function() {
+            setTimeout(() => {
+                testScrollFunction();
+                testEnvironment();
+                testEmailFunctions();
+                testDebugFunctions();
+            }, 1000);
+        });
+    </script>
+    
+    <script src="script.js"></script>
+</body>
+</html>
