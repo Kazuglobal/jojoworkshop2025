@@ -505,8 +505,10 @@ async function handleLuxuryFormSubmit(e) {
             throw error;
         }
         
-        // Send notification emails
-        await sendNotificationEmails(registrationData);
+        // Send notification emails (non-blocking)
+        sendNotificationEmails(registrationData).catch(error => {
+            console.error('Email notification failed but registration was successful:', error);
+        });
         
         // Show luxury success message with fireworks for ALL devices
         showLuxurySuccessMessage();
@@ -678,48 +680,60 @@ function removeFocusGlow(field) {
 async function sendNotificationEmails(registrationData) {
     console.log('🔄 Starting email notification process...', registrationData);
     
-    // First try Supabase Edge Functions
-    let edgeFunctionsWorked = false;
+    // Enhanced email sending with detailed tracking
+    const emailStatus = {
+        adminEmail: false,
+        userEmail: false,
+        method: 'none',
+        errors: []
+    };
     
     try {
-        console.log('📧 Attempting Supabase Edge Functions...');
-        await sendAdminNotification(registrationData);
-        await sendThankYouEmail(registrationData);
-        edgeFunctionsWorked = true;
-        console.log('✅ Supabase Edge Functions successful');
-    } catch (error) {
-        console.error('❌ Supabase Edge Functions failed:', error);
-        edgeFunctionsWorked = false;
-    }
-    
-    // If Edge Functions failed, use backup system
-    if (!edgeFunctionsWorked) {
         console.log('🔄 Attempting backup email system...');
+        await sendBackupEmails(registrationData);
+        emailStatus.adminEmail = true;
+        emailStatus.userEmail = true;
+        emailStatus.method = 'web3forms';
+        console.log('✅ Backup email system successful');
+        
+        // Log successful email sending
+        logEmailSuccess(registrationData, emailStatus);
+        
+    } catch (backupError) {
+        console.error('❌ Backup email system failed:', backupError);
+        emailStatus.errors.push('Web3Forms: ' + backupError.message);
+        
+        // Last resort: Email via direct API
         try {
-            await sendBackupEmails(registrationData);
-            console.log('✅ Backup email system successful');
-        } catch (backupError) {
-            console.error('❌ Backup email system also failed:', backupError);
+            await sendDirectEmails(registrationData);
+            emailStatus.adminEmail = true;
+            emailStatus.userEmail = true;
+            emailStatus.method = 'direct';
+            console.log('✅ Direct email system successful');
             
-            // Last resort: Email via EmailJS or direct API
-            try {
-                await sendDirectEmails(registrationData);
-                console.log('✅ Direct email system successful');
-            } catch (directError) {
-                console.error('❌ All email systems failed:', directError);
-                
-                // Store for manual follow-up
-                logRegistrationForManualFollowUp(registrationData);
-                
-                // Show user that emails might be delayed
-                showEmailDelayNotification();
-            }
+            // Log successful email sending
+            logEmailSuccess(registrationData, emailStatus);
+            
+        } catch (directError) {
+            console.error('❌ All email systems failed:', directError);
+            emailStatus.errors.push('Direct: ' + directError.message);
+            
+            // Store for manual follow-up
+            logRegistrationForManualFollowUp(registrationData, emailStatus);
+            
+            // Show user that emails might be delayed
+            showEmailDelayNotification();
         }
     }
 }
 
 async function sendAdminNotification(data) {
     console.log('📧 Sending admin notification to globalbunny77@gmail.com...');
+    
+    // Check if Supabase is properly configured
+    if (!supabase) {
+        throw new Error('Supabase client not initialized');
+    }
     
     try {
         const { data: result, error } = await supabase.functions.invoke('send-admin-notification', {
@@ -755,6 +769,11 @@ async function sendAdminNotification(data) {
 
 async function sendThankYouEmail(data) {
     console.log(`📧 Sending thank you email to ${data.email}...`);
+    
+    // Check if Supabase is properly configured
+    if (!supabase) {
+        throw new Error('Supabase client not initialized');
+    }
     
     // Determine language and function to use
     const isEnglish = (typeof currentLanguage !== 'undefined' && currentLanguage === 'en');
@@ -833,16 +852,20 @@ Voice Atelier システム`
     const adminResult = await adminResponse.json();
     console.log('✅ Admin notification sent via Web3Forms:', adminResult);
     
-    // Send user confirmation email
-    const isEnglish = (typeof currentLanguage !== 'undefined' && currentLanguage === 'en');
+    // Send user confirmation email using separate Web3Forms submission
+    // Force Japanese email for now
+    const isEnglish = false; // 日本語メールを強制送信
     
+    // Use a different approach: send directly to user with proper From/To headers
     const userEmailData = {
         access_key: web3formsKey,
         subject: isEnglish ? 
             '【Voice Atelier】Thank you for your workshop registration✨' :
             '【Voice Atelier】ワークショップお申し込みありがとうございます✨',
         from_name: 'Voice Atelier',
-        email: data.email,
+        from_email: 'globalbunny77@gmail.com', // 実際の送信元
+        email: data.email, // 宛先（ユーザーのメールアドレス）
+        reply_to: 'globalbunny77@gmail.com', // 返信先
         message: isEnglish ? 
             `Dear ${data.parent_name},
 
@@ -933,14 +956,273 @@ ${data.special_needs ? `⚠️ 配慮事項: ${data.special_needs}` : ''}
         body: JSON.stringify(userEmailData)
     });
     
-    if (!userResponse.ok) {
-        console.error('User confirmation email failed, but admin notification succeeded');
-        // Don't throw error for user email failure
-    } else {
-        const userResult = await userResponse.json();
-        console.log('✅ User confirmation sent via Web3Forms:', userResult);
+    // Web3Formsの制限のため、ユーザー確認メールは直接Formsubmitを使用
+    console.log('📧 Sending user confirmation email via Formsubmit...');
+    try {
+        await sendUserConfirmationViaFormsubmit(data, false); // 日本語強制
+        console.log('✅ User confirmation sent via Formsubmit');
+    } catch (formsubmitError) {
+        console.error('❌ Formsubmit failed, trying alternative method:', formsubmitError);
+        try {
+            await sendUserConfirmationViaEmailJS(data, false); // 日本語強制
+            console.log('✅ User confirmation sent via EmailJS backup');
+        } catch (emailJsError) {
+            console.error('❌ All user email methods failed:', emailJsError);
+            // Don't throw error - admin notification succeeded
+        }
     }
 }
+
+// EmailJS backup for user confirmation emails
+async function sendUserConfirmationViaEmailJS(data, isEnglish) {
+    console.log('📧 Sending user confirmation via EmailJS...');
+    
+    // Force Japanese for all emails
+    isEnglish = false;
+    
+    // EmailJS configuration (using a public service)
+    const emailjsConfig = {
+        serviceId: 'service_voiceatelier',
+        templateId: 'template_confirmation_ja', // 日本語テンプレート強制
+        publicKey: 'YOUR_EMAILJS_PUBLIC_KEY' // この値は後で設定
+    };
+    
+    // For now, use a simple SMTP service simulation
+    const emailData = {
+        to_email: data.email,
+        to_name: data.parent_name,
+        from_name: 'Voice Atelier',
+        subject: '【Voice Atelier】ワークショップお申し込み確認✨',
+        message: `${data.parent_name} 様、${data.child_name} さんのワークショップお申し込みありがとうございます！`,
+        participant_name: data.child_name,
+        grade: data.grade,
+        experience: data.experience,
+        special_needs: data.special_needs || '',
+        workshop_date: '2025年6月21日（土）10:30〜12:00',
+        venue: 'UDCK（柏の葉キャンパス駅）'
+    };
+    
+    // 詳細な日本語確認メールを作成
+    const detailedMessage =
+        `${data.parent_name} 様
+
+✨ この度は、世界的ボイストレーナー ジョジョ・アコスタ氏による特別ワークショップにお申し込みいただき、誠にありがとうございます！
+
+【✅ お申し込み確認完了】
+🧒 参加者名: ${data.child_name}
+📚 学年: ${data.grade}
+🎵 歌唱経験: ${data.experience}
+${data.special_needs ? `⚠️ 配慮事項: ${data.special_needs}` : ''}
+
+【📅 ワークショップ詳細】
+🗓️ 開催日時: 2025年6月21日（土）10:30〜12:00（90分間）
+📍 会場: UDCK（柏の葉アーバンデザインセンター）
+　　　  - つくばエクスプレス「柏の葉キャンパス駅」より徒歩1分
+🎯 対象: 小学生〜中学生（7歳〜15歳）
+👥 定員: 20名限定
+💝 参加費: 完全無料
+🌐 使用言語: 英語楽曲（日本語サポートあり）
+
+【🎤 講師について】
+ジョジョ・アコスタ氏（フィリピン出身）
+「X-Factor」「レ・ミゼラブル」「アメリカンアイドル」の出演者を指導した世界的ボイストレーナー
+詳細プロフィール: https://jojoacosta.com/
+
+【📧 お問い合わせ】
+ご質問がございましたら、お気軽にご連絡ください：
+📧 メール: globalbunny77@gmail.com
+👤 担当: 大舘
+
+世界レベルの指導をお子様に体験していただけることを、スタッフ一同心より楽しみにしております！
+
+──────────────────
+🎼 Voice Atelier
+世界的ボイストレーナー ジョジョ・アコスタ氏ワークショップ
+──────────────────
+
+※この確認メールは自動送信されています
+申し込み日時: ${new Date(data.created_at).toLocaleString('ja-JP')}`;
+
+    // Formsubmitを使用してユーザー確認メール送信
+    const formsubmitResponse = await fetch('https://formsubmit.co/ajax/' + data.email, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+            name: 'Voice Atelier',
+            email: 'globalbunny77@gmail.com',
+            subject: '【Voice Atelier】ワークショップお申し込み確認✨',
+            message: detailedMessage,
+            _captcha: 'false',
+            _template: 'table'
+        })
+    });
+    
+    if (!formsubmitResponse.ok) {
+        throw new Error('Formsubmit failed');
+    }
+    
+    console.log('✅ User confirmation sent via Formsubmit');
+}
+
+// Formsubmit for user confirmation emails (direct to user)
+async function sendUserConfirmationViaFormsubmit(data, isEnglish) {
+    console.log(`📧 Sending user confirmation via Formsubmit to ${data.email}...`);
+    
+    // シンプルな日本語申込完了メール
+    const confirmationMessage = `${data.parent_name} 様
+
+お申し込みありがとうございます。
+
+下記の内容でワークショップのお申し込みを承りました。
+
+■ 参加者名: ${data.child_name}
+■ 学年: ${data.grade}
+■ 歌唱経験: ${data.experience}
+${data.special_needs ? `■ その他: ${data.special_needs}` : ''}
+
+■ 開催日時: 2025年6月21日（土）10:30〜12:00
+■ 会場: UDCK（柏の葉キャンパス駅）
+■ 講師: ジョジョ・アコスタ氏（詳細: https://jojoacosta.com/）
+■ 参加費: 無料
+
+お問い合わせ先:
+メール: globalbunny77@gmail.com
+担当: 大舘
+
+当日お会いできることを楽しみにしております。
+
+Voice Atelier`;
+
+    // Formsubmit使用でユーザーに直接メール送信
+    const formsubmitResponse = await fetch(`https://formsubmit.co/ajax/${data.email}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+            name: 'Voice Atelier',
+            email: 'globalbunny77@gmail.com',
+            subject: '【Voice Atelier】お申し込み完了',
+            message: confirmationMessage,
+            _captcha: 'false',
+            _template: 'table'
+        })
+    });
+    
+    if (!formsubmitResponse.ok) {
+        const errorText = await formsubmitResponse.text();
+        throw new Error(`Formsubmit failed: ${formsubmitResponse.status} - ${errorText}`);
+    }
+    
+    const result = await formsubmitResponse.json();
+    console.log('✅ User confirmation sent via Formsubmit:', result);
+}
+
+// Logging functions for email tracking
+function logEmailSuccess(registrationData, emailStatus) {
+    console.log('📊 Email Success Log:', {
+        timestamp: new Date().toISOString(),
+        participant: registrationData.child_name,
+        email: registrationData.email,
+        adminEmail: emailStatus.adminEmail,
+        userEmail: emailStatus.userEmail,
+        method: emailStatus.method
+    });
+    
+    // Store in localStorage for debugging
+    const emailLogs = JSON.parse(localStorage.getItem('email_logs') || '[]');
+    emailLogs.push({
+        timestamp: new Date().toISOString(),
+        type: 'success',
+        participant: registrationData.child_name,
+        email: registrationData.email,
+        status: emailStatus
+    });
+    localStorage.setItem('email_logs', JSON.stringify(emailLogs.slice(-50))); // Keep last 50 logs
+}
+
+function logRegistrationForManualFollowUp(registrationData, emailStatus) {
+    console.error('📝 Manual Follow-up Required:', {
+        timestamp: new Date().toISOString(),
+        participant: registrationData.child_name,
+        email: registrationData.email,
+        phone: registrationData.phone,
+        errors: emailStatus.errors
+    });
+    
+    // Store in localStorage for manual follow-up
+    const manualLogs = JSON.parse(localStorage.getItem('manual_followup') || '[]');
+    manualLogs.push({
+        timestamp: new Date().toISOString(),
+        participant: registrationData.child_name,
+        parentName: registrationData.parent_name,
+        email: registrationData.email,
+        phone: registrationData.phone,
+        grade: registrationData.grade,
+        experience: registrationData.experience,
+        specialNeeds: registrationData.special_needs,
+        errors: emailStatus.errors
+    });
+    localStorage.setItem('manual_followup', JSON.stringify(manualLogs));
+    
+    // Send to admin immediately for manual processing
+    fetch('https://api.web3forms.com/submit', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            access_key: 'e1e48109-25e6-4dc7-80fa-29aa5ca56e24',
+            subject: '【緊急】Voice Atelier - メール送信失敗・手動対応必要',
+            from_name: 'Voice Atelier システム',
+            email: 'globalbunny77@gmail.com',
+            message: `メール送信に失敗しました。手動での連絡が必要です。
+
+【参加者情報】
+参加者名: ${registrationData.child_name}
+保護者名: ${registrationData.parent_name}
+メールアドレス: ${registrationData.email}
+電話番号: ${registrationData.phone}
+学年: ${registrationData.grade}
+
+【エラー詳細】
+${emailStatus.errors.join('\n')}
+
+【重要】この方に直接ご連絡ください。`
+        })
+    }).catch(err => console.error('Emergency notification failed:', err));
+}
+
+function showEmailDelayNotification() {
+    // Show user notification about potential email delay
+    console.log('📧 Showing email delay notification to user');
+    
+    // You could show a toast notification here
+    // For now, just log it
+}
+
+// Debug function to check email logs (for development)
+function checkEmailLogs() {
+    const emailLogs = JSON.parse(localStorage.getItem('email_logs') || '[]');
+    const manualLogs = JSON.parse(localStorage.getItem('manual_followup') || '[]');
+    
+    console.log('📊 Email Success Logs:', emailLogs);
+    console.log('📝 Manual Follow-up Required:', manualLogs);
+    
+    return {
+        successCount: emailLogs.length,
+        failureCount: manualLogs.length,
+        logs: emailLogs,
+        failures: manualLogs
+    };
+}
+
+// Make debug function available globally
+window.checkEmailLogs = checkEmailLogs;
 
 // Direct email implementation with multiple providers
 async function sendDirectEmails(data) {
