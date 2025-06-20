@@ -769,6 +769,13 @@
         </div>
     </footer>
 
+    <!-- Hidden forms for Netlify Forms support -->
+    <form name="user-confirmation" netlify hidden>
+        <input type="email" name="email" />
+        <input type="text" name="subject" />
+        <textarea name="message"></textarea>
+    </form>
+
     <!-- Supabase JavaScript SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.min.js"></script>
     <script src="translations.js"></script>

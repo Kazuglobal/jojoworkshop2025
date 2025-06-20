@@ -508,6 +508,27 @@ async function handleLuxuryFormSubmit(e) {
         // Send notification emails (non-blocking)
         sendNotificationEmails(registrationData).catch(error => {
             console.error('Email notification failed but registration was successful:', error);
+            
+            // Log detailed error for debugging
+            console.error('Email Error Details:', {
+                timestamp: new Date().toISOString(),
+                userAgent: navigator.userAgent,
+                url: window.location.href,
+                userEmail: registrationData.email,
+                error: error.message,
+                stack: error.stack
+            });
+            
+            // Store failed email attempt for manual follow-up
+            const failedEmails = JSON.parse(localStorage.getItem('failed_emails') || '[]');
+            failedEmails.push({
+                timestamp: new Date().toISOString(),
+                email: registrationData.email,
+                parentName: registrationData.parent_name,
+                childName: registrationData.child_name,
+                error: error.message
+            });
+            localStorage.setItem('failed_emails', JSON.stringify(failedEmails.slice(-20)));
         });
         
         // Show luxury success message with fireworks for ALL devices
@@ -1096,30 +1117,107 @@ ${data.special_needs ? `■ その他: ${data.special_needs}` : ''}
 
 Voice Atelier`;
 
-    // Formsubmit使用でユーザーに直接メール送信
-    const formsubmitResponse = await fetch(`https://formsubmit.co/ajax/${data.email}`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-        },
-        body: JSON.stringify({
-            name: 'Voice Atelier',
-            email: 'globalbunny77@gmail.com',
-            subject: '【Voice Atelier】お申し込み完了',
-            message: confirmationMessage,
-            _captcha: 'false',
-            _template: 'table'
-        })
-    });
+    // Method 1: Try Formsubmit first
+    let emailSent = false;
+    let lastError = null;
     
-    if (!formsubmitResponse.ok) {
-        const errorText = await formsubmitResponse.text();
-        throw new Error(`Formsubmit failed: ${formsubmitResponse.status} - ${errorText}`);
+    try {
+        console.log('📧 Trying Formsubmit...');
+        const formsubmitResponse = await fetch(`https://formsubmit.co/ajax/${data.email}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+                name: 'Voice Atelier',
+                email: 'globalbunny77@gmail.com',
+                subject: '【Voice Atelier】お申し込み完了',
+                message: confirmationMessage,
+                _captcha: 'false',
+                _template: 'table'
+            })
+        });
+        
+        if (formsubmitResponse.ok) {
+            const result = await formsubmitResponse.json();
+            console.log('✅ User confirmation sent via Formsubmit:', result);
+            emailSent = true;
+        } else {
+            const errorText = await formsubmitResponse.text();
+            lastError = `Formsubmit failed: ${formsubmitResponse.status} - ${errorText}`;
+            console.error(lastError);
+        }
+    } catch (error) {
+        lastError = `Formsubmit error: ${error.message}`;
+        console.error(lastError);
     }
     
-    const result = await formsubmitResponse.json();
-    console.log('✅ User confirmation sent via Formsubmit:', result);
+    // Method 2: Try Netlify Forms as backup
+    if (!emailSent) {
+        try {
+            console.log('📧 Trying Netlify Forms backup...');
+            const netlifyResponse = await fetch('/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: new URLSearchParams({
+                    'form-name': 'user-confirmation',
+                    'email': data.email,
+                    'subject': '【Voice Atelier】お申し込み完了',
+                    'message': confirmationMessage
+                }).toString()
+            });
+            
+            if (netlifyResponse.ok) {
+                console.log('✅ User confirmation sent via Netlify Forms');
+                emailSent = true;
+            } else {
+                lastError = `Netlify Forms failed: ${netlifyResponse.status}`;
+                console.error(lastError);
+            }
+        } catch (error) {
+            lastError = `Netlify Forms error: ${error.message}`;
+            console.error(lastError);
+        }
+    }
+    
+    // Method 3: Try Getform.io as final backup
+    if (!emailSent) {
+        try {
+            console.log('📧 Trying Getform.io backup...');
+            const getformResponse = await fetch('https://getform.io/f/bpjjeyqb', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({
+                    email: data.email,
+                    subject: '【Voice Atelier】お申し込み完了',
+                    message: confirmationMessage,
+                    to: data.email
+                })
+            });
+            
+            if (getformResponse.ok) {
+                console.log('✅ User confirmation sent via Getform.io');
+                emailSent = true;
+            } else {
+                lastError = `Getform.io failed: ${getformResponse.status}`;
+                console.error(lastError);
+            }
+        } catch (error) {
+            lastError = `Getform.io error: ${error.message}`;
+            console.error(lastError);
+        }
+    }
+    
+    if (!emailSent) {
+        console.error('❌ All email services failed. Last error:', lastError);
+        throw new Error(`All email services failed: ${lastError}`);
+    }
 }
 
 // Logging functions for email tracking
@@ -1221,8 +1319,43 @@ function checkEmailLogs() {
     };
 }
 
-// Make debug function available globally
+// Make debug functions available globally
 window.checkEmailLogs = checkEmailLogs;
+
+// Debug function to check failed emails
+function checkFailedEmails() {
+    const failedEmails = JSON.parse(localStorage.getItem('failed_emails') || '[]');
+    console.log('📧 Failed Email Attempts:', failedEmails);
+    return failedEmails;
+}
+
+// Test email function for debugging
+async function testEmailDelivery(testEmail) {
+    console.log('🧪 Testing email delivery to:', testEmail);
+    
+    const testData = {
+        child_name: 'テスト太郎',
+        grade: '小学1年生',
+        parent_name: 'テスト花子',
+        email: testEmail,
+        phone: '090-1234-5678',
+        experience: '初心者',
+        special_needs: '',
+        created_at: new Date().toISOString()
+    };
+    
+    try {
+        await sendUserConfirmationViaFormsubmit(testData, false);
+        console.log('✅ Test email sent successfully');
+        return true;
+    } catch (error) {
+        console.error('❌ Test email failed:', error);
+        return false;
+    }
+}
+
+window.checkFailedEmails = checkFailedEmails;
+window.testEmailDelivery = testEmailDelivery;
 
 // Direct email implementation with multiple providers
 async function sendDirectEmails(data) {
