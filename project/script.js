@@ -94,7 +94,7 @@ performanceMonitor.trackPageLoad();
 
 // Smooth scroll to form functionality
 function scrollToForm() {
-    const formSection = document.getElementById('registration');
+    const formSection = document.getElementById('register');
     if (formSection) {
         formSection.scrollIntoView({ 
             behavior: 'smooth',
